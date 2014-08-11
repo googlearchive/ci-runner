@@ -1,0 +1,12 @@
+{
+  "name": "ci-runner",
+  "private": true,
+  "dependencies": {
+    "polymer": "Polymer/polymer#master",
+    "firebase-element": "Polymer/firebase-element#master",
+    "paper-tabs": "Polymer/paper-tabs#master",
+    "core-toolbar": "Polymer/core-toolbar#master",
+    "core-tooltip": "Polymer/core-tooltip#master",
+    "core-splitter": "Polymer/core-splitter#master"
+  }
+}

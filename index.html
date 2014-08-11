@@ -70,12 +70,16 @@
             font-size: 0.7em;
           }
         </style>
-        <firebase-element location="https://ci-runner.firebaseio.com/status/{{commitId}}" 
+        <firebase-element location="https://ci-runner.firebaseio.com/status/{{commitId}}/platforms" 
           data="{{results}}" auto?="{{commit}}" on-data-change="{{resultsChanged}}"></firebase-element>
+        <firebase-element location="https://ci-runner.firebaseio.com/status/{{commitId}}" 
+          data="{{status}}" auto?="{{commit}}" on-data-change="{{resultsChanged}}"></firebase-element>
         <core-toolbar class="toolbar">
-          <div>CI Results
+          <div flex>CI Results
             <div class="details">{{org}} / {{repo}} <a href="https://github.com/{{org}}/{{repo}}/tree/{{commit}}">{{commit}}</a></div>
           </div>
+          <div hidden?="{{!status.pending}}">Tests in progress...</div>
+          <div hidden?="{{!status.error}}">Error occurred running tests</div>
         </core-toolbar>
         <paper-tabs selected="{{selected}}" class="tabs">
           <template repeat="{{resultsArray}}">

@@ -31,7 +31,7 @@ fbChangeQueue.on('child_added', function(s) {
   testCommit(s.val(), s.ref());
 });
 
-function exec(cmd, args, cwd, exitCB, dataCB) {
+function exec(cmd, args, cwd, exitCB, dataCB, errCB) {
   var spawn = require('child_process').spawn;
   var child = spawn(cmd, args, {cwd: cwd});
   var resp = '';
@@ -41,6 +41,15 @@ function exec(cmd, args, cwd, exitCB, dataCB) {
         console.log(buffer.toString());
       } else {
         dataCB(buffer.toString());
+      }
+    });
+  }
+  if (errCB) {
+    child.stderr.on('data', function (buffer) {
+      if (errCB === true) {
+        console.error(buffer.toString());
+      } else {
+        errCB(buffer.toString());
       }
     });
   }
@@ -63,6 +72,7 @@ function testCommit(event, fbRef) {
   var repoName = event.repository.name;
   var commitId = user + '|' + repoName + "|" + commit.sha;
   var repoPath = path.join('commits', user + '-' + repoName + "-" + commit.sha);
+  var statusUrl = 'http://kevinpschaaf.github.io/ci-runner/?commit=' + commitId;
   var repo;
   var state;
   var statusMsg;
@@ -71,6 +81,21 @@ function testCommit(event, fbRef) {
   var failedTests = 0;
   testsInProgress[commit.sha] = true;
   async.series([
+    function(next) {
+      console.log('Setting status to "pending" for ' + commit.sha);
+      fbChangeStatus.child(commitId).remove();
+      fbChangeStatus.child(commitId).child('pending').set(true);
+      github.statuses.create({
+        user: user,
+        repo: repoName,
+        sha: commit.sha,
+        state: 'pending',
+        description: 'Initializing tests...',
+        target_url: statusUrl
+      }, function(err) {
+        next(err);
+      });
+    },
     function(next) {
       console.log('Clone:', commit.repo.clone_url);
       git.clone(commit.repo.clone_url, repoPath, function(err, _repo) {
@@ -85,33 +110,22 @@ function testCommit(event, fbRef) {
       });
     },
     function(next) {
-      console.log('Setting status to "pending" for ' + commit.sha);
-      github.statuses.create({
-        user: user,
-        repo: repoName,
-        sha: commit.sha,
-        state: 'pending',
-        description: 'Initializing tests...'
-      }, function(err) {
-        next(err);
-      });
-    },
-    function(next) {
       console.log('Starting test on ' + commit.sha);
-      fbChangeStatus.child(commitId).remove();
       var lastStatus = {};
       console.log('Starting npm install');
       exec('npm', ['install'], repoPath, function(code) {
-        console.log('Completed npm install:', code);
+        console.log('Completed npm install with code ' + code);
         if (code === 0) {
           github.statuses.create({
             user: user,
             repo: repoName,
             sha: commit.sha,
             state: 'pending',
-            description: 'Starting tests...'
+            description: 'Starting tests...',
+            target_url: statusUrl
           });
           exec('grunt', [], repoPath, function(code) {
+            console.log('Completed grunt with code ' + code);
             if (code === 0) {
               state = 'success';
               statusMsg = passedTests + '/' + totalTests + ' platforms passed.';
@@ -119,12 +133,12 @@ function testCommit(event, fbRef) {
               state = 'failure';
               statusMsg = failedTests + '/' + totalTests + ' platforms failed.';
             }
-            shelljs.popd();
             next();
           }, function(data) {
             var match;
             if (match = data.match('(\\d*) tests started')) {
               totalTests = parseInt(match[1]);
+              fbChangeStatus.child(commitId).child('total').set(totalTests);
             }
             if (match = data.match('Platform: (.*)')) {
               lastStatus.platform = match[1];
@@ -133,14 +147,16 @@ function testCommit(event, fbRef) {
               lastStatus.passed = (match[1] == 'true');
               if (lastStatus.passed) {
                 passedTests++;
+                fbChangeStatus.child(commitId).child('passed').set(passedTests);
               } else {
                 failedTests++;
+                fbChangeStatus.child(commitId).child('failed').set(failedTests);
               }
             }
             if (match = data.match('Url (.*)')) {
               lastStatus.url = match[1];
               console.log(lastStatus);
-              var fbStatus = fbChangeStatus.child(commitId).push(lastStatus);
+              var fbStatus = fbChangeStatus.child(commitId).child('platforms').push(lastStatus);
               var jobId = (match = lastStatus.url.match('jobs/(.*)')) && match[1];
               updateWithLog(fbStatus, jobId);
               github.statuses.create({
@@ -148,35 +164,45 @@ function testCommit(event, fbRef) {
                 repo: repoName,
                 sha: commit.sha,
                 state: 'pending',
-                description: 'Testing platforms: ' + passedTests + ' passed, ' + failedTests + ' failed, ' + (totalTests - passedTests - failedTests) + ' remaining...'
+                description: 'Testing platforms: ' + passedTests + ' passed, ' + failedTests + ' failed, ' + (totalTests - passedTests - failedTests) + ' remaining...',
+                target_url: statusUrl
               });
             }
           });
         } else {
-          state = 'error';
-          next();
+          next('npm install failed');
         }
       });
     },
     function(next) {
-      //fbRef.remove();
       console.log('Setting status to ' + state + ' for ' + commit.sha);
       github.statuses.create({
         user: user,
         repo: repoName,
         sha: commit.sha,
         state: state,
-        description: statusMsg
+        description: statusMsg,
+        target_url: statusUrl
       }, function(err) {
         next(err);
       });
     },
   ], function(err) {
+    fbChangeStatus.child(commitId).child('pending').set(false);
     testsInProgress[commit.sha] = false;
     shelljs.rm('-rf', repoPath);
     if (err) {
-      shelljs.rm('-rf', repoPath);
-      console.log(err);
+      console.error(err);
+      fbChangeStatus.child(commitId).child('error').set(err.toString());
+      github.statuses.create({
+        user: user,
+        repo: repoName,
+        sha: commit.sha,
+        state: 'error',
+        description: 'Error occurred: ' + err
+      });
+    } else {
+      fbRef.remove();
     }
   });
 }

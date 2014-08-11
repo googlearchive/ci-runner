@@ -232,7 +232,7 @@ function updateWithLog(fbStatus, jobId) {
           if (s.screenshot) {
             var n = ('0000' + s.screenshot).slice(-4);
             url = urlForSauceResource('/jobs/' + jobId + '/assets/' + n + 'screenshot.png');
-            console.log('Retrieving image', url);
+            console.log('Retrieving image for ' + jobId);
             request.get({url:url, encoding:null}, function(err, resp, body) {
               if (!err && resp.statusCode == 200) {
                 var data = "data:image/png;base64," + new Buffer(body).toString('base64');

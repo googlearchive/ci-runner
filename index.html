@@ -83,11 +83,11 @@
         </core-toolbar>
         <paper-tabs selected="{{selected}}" class="tabs">
           <template repeat="{{resultsArray}}">
-            <paper-tab class="tab {{ {fail: !pass} | tokenList }}">
+            <paper-tab class="tab {{ {fail: !passed} | tokenList }}">
               <core-tooltip label="{{platform}}">
                 <div>{{platform}}</div>
               </core-tooltip>
-              <div class="result">{{pass ? 'Passed' : 'Failed'}}</div>
+              <div class="result">{{passed ? 'Passed' : 'Failed'}}</div>
             </paper-tab>
           </template>
         </paper-tabs>

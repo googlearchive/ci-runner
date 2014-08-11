@@ -1,0 +1,3110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <script src="../components/platform-dev/platform.js"></script>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<style shim-shadowdom="">
+/*******************************
+          Flex Layout
+*******************************/
+
+html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+html /deep/ [layout][horizontal][inline], html /deep/ [layout][vertical][inline] {
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}
+
+html /deep/ [layout][horizontal] {
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+html /deep/ [layout][horizontal][reverse] {
+  -ms-flex-direction: row-reverse;
+  -webkit-flex-direction: row-reverse;
+  flex-direction: row-reverse;
+}
+
+html /deep/ [layout][vertical] {
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+html /deep/ [layout][vertical][reverse] {
+  -ms-flex-direction: column-reverse;
+  -webkit-flex-direction: column-reverse;
+  flex-direction: column-reverse;
+}
+
+html /deep/ [layout][wrap] {
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+html /deep/ [layout][wrap-reverse] {
+  -ms-flex-wrap: wrap-reverse;
+  -webkit-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+}
+
+html /deep/ [flex] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][auto] {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+html /deep/ [flex][none] {
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none;
+}
+
+html /deep/ [flex][one] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][two] {
+  -ms-flex: 2;
+  -webkit-flex: 2;
+  flex: 2;
+}
+
+html /deep/ [flex][three] {
+  -ms-flex: 3;
+  -webkit-flex: 3;
+  flex: 3;
+}
+
+html /deep/ [flex][four] {
+  -ms-flex: 4;
+  -webkit-flex: 4;
+  flex: 4;
+}
+
+html /deep/ [flex][five] {
+  -ms-flex: 5;
+  -webkit-flex: 5;
+  flex: 5;
+}
+
+html /deep/ [flex][six] {
+  -ms-flex: 6;
+  -webkit-flex: 6;
+  flex: 6;
+}
+
+html /deep/ [flex][seven] {
+  -ms-flex: 7;
+  -webkit-flex: 7;
+  flex: 7;
+}
+
+html /deep/ [flex][eight] {
+  -ms-flex: 8;
+  -webkit-flex: 8;
+  flex: 8;
+}
+
+html /deep/ [flex][nine] {
+  -ms-flex: 9;
+  -webkit-flex: 9;
+  flex: 9;
+}
+
+html /deep/ [flex][ten] {
+  -ms-flex: 10;
+  -webkit-flex: 10;
+  flex: 10;
+}
+
+html /deep/ [flex][eleven] {
+  -ms-flex: 11;
+  -webkit-flex: 11;
+  flex: 11;
+}
+
+html /deep/ [flex][twelve] {
+  -ms-flex: 12;
+  -webkit-flex: 12;
+  flex: 12;
+}
+
+/* alignment in cross axis */
+
+html /deep/ [layout][start] {
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+html /deep/ [layout][center], html /deep/ [layout][center-center] {
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+html /deep/ [layout][end] {
+  -ms-flex-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+
+/* alignment in main axis */
+
+html /deep/ [layout][start-justified] {
+  -ms-flex-pack: start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+}
+
+html /deep/ [layout][center-justified], html /deep/ [layout][center-center] {
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+html /deep/ [layout][end-justified] {
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+html /deep/ [layout][around-justified] {
+  -ms-flex-pack: around;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+html /deep/ [layout][justified] {
+  -ms-flex-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
+/* self alignment */
+
+html /deep/ [self-start] {
+  -ms-align-self: flex-start;
+  -webkit-align-self: flex-start;
+  align-self: flex-start;
+}
+
+html /deep/ [self-center] {
+  -ms-align-self: center;
+  -webkit-align-self: center;
+  align-self: center;
+}
+
+html /deep/ [self-end] {
+  -ms-align-self: flex-end;
+  -webkit-align-self: flex-end;
+  align-self: flex-end;
+}
+
+html /deep/ [self-stretch] {
+  -ms-align-self: stretch;
+  -webkit-align-self: stretch;
+  align-self: stretch;
+}
+
+/*******************************
+          Other Layout
+*******************************/
+
+html /deep/ [block] {
+  display: block;
+}
+
+/* ie support for hidden */
+html /deep/ [hidden] {
+  display: none !important;
+}
+
+html /deep/ [relative] {
+  position: relative;
+}
+
+html /deep/ [fit] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+body[fullbleed] {
+  margin: 0;
+  height: 100vh;
+}
+
+/*******************************
+            Other
+*******************************/
+
+html /deep/ [segment], html /deep/ segment {
+  display: block;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 1em 0.5em;
+  padding: 1em;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px 5px 5px 5px;
+}
+
+</style>
+<!-- 
+<script src="polymer.js"></script>
+ -->
+<!--
+ Copyright 2013 The Polymer Authors. All rights reserved.
+ Use of this source code is governed by a BSD-style
+ license that can be found in the LICENSE file.
+-->
+<!-- Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt -->
+
+<script src="../components/polymer-expressions/third_party/esprima/esprima.js"></script>
+<script src="../components/polymer-expressions/src/polymer-expressions.js"></script>
+
+<!-- Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt -->
+
+<script src="../components/polymer-gestures/src/scope.js"></script>
+<script src="../components/polymer-gestures/src/targetfind.js"></script>
+<script src="../components/polymer-gestures/src/touch-action.js"></script>
+<script src="../components/polymer-gestures/src/eventFactory.js"></script>
+<script src="../components/polymer-gestures/src/pointermap.js"></script>
+<script src="../components/polymer-gestures/src/dispatcher.js"></script>
+<script src="../components/polymer-gestures/src/mouse.js"></script>
+<script src="../components/polymer-gestures/src/touch.js"></script>
+<script src="../components/polymer-gestures/src/ms.js"></script>
+<script src="../components/polymer-gestures/src/pointer.js"></script>
+<script src="../components/polymer-gestures/src/platform-events.js"></script>
+<script src="../components/polymer-gestures/src/track.js"></script>
+<script src="../components/polymer-gestures/src/hold.js"></script>
+<script src="../components/polymer-gestures/src/tap.js"></script>
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<style shim-shadowdom="">
+/*******************************
+          Flex Layout
+*******************************/
+
+html /deep/ [layout][horizontal], html /deep/ [layout][vertical] {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+html /deep/ [layout][horizontal][inline], html /deep/ [layout][vertical][inline] {
+  display: -ms-inline-flexbox;
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}
+
+html /deep/ [layout][horizontal] {
+  -ms-flex-direction: row;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+}
+
+html /deep/ [layout][horizontal][reverse] {
+  -ms-flex-direction: row-reverse;
+  -webkit-flex-direction: row-reverse;
+  flex-direction: row-reverse;
+}
+
+html /deep/ [layout][vertical] {
+  -ms-flex-direction: column;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
+
+html /deep/ [layout][vertical][reverse] {
+  -ms-flex-direction: column-reverse;
+  -webkit-flex-direction: column-reverse;
+  flex-direction: column-reverse;
+}
+
+html /deep/ [layout][wrap] {
+  -ms-flex-wrap: wrap;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+html /deep/ [layout][wrap-reverse] {
+  -ms-flex-wrap: wrap-reverse;
+  -webkit-flex-wrap: wrap-reverse;
+  flex-wrap: wrap-reverse;
+}
+
+html /deep/ [flex] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][auto] {
+  -ms-flex: 1 1 auto;
+  -webkit-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+html /deep/ [flex][none] {
+  -ms-flex: none;
+  -webkit-flex: none;
+  flex: none;
+}
+
+html /deep/ [flex][one] {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+
+html /deep/ [flex][two] {
+  -ms-flex: 2;
+  -webkit-flex: 2;
+  flex: 2;
+}
+
+html /deep/ [flex][three] {
+  -ms-flex: 3;
+  -webkit-flex: 3;
+  flex: 3;
+}
+
+html /deep/ [flex][four] {
+  -ms-flex: 4;
+  -webkit-flex: 4;
+  flex: 4;
+}
+
+html /deep/ [flex][five] {
+  -ms-flex: 5;
+  -webkit-flex: 5;
+  flex: 5;
+}
+
+html /deep/ [flex][six] {
+  -ms-flex: 6;
+  -webkit-flex: 6;
+  flex: 6;
+}
+
+html /deep/ [flex][seven] {
+  -ms-flex: 7;
+  -webkit-flex: 7;
+  flex: 7;
+}
+
+html /deep/ [flex][eight] {
+  -ms-flex: 8;
+  -webkit-flex: 8;
+  flex: 8;
+}
+
+html /deep/ [flex][nine] {
+  -ms-flex: 9;
+  -webkit-flex: 9;
+  flex: 9;
+}
+
+html /deep/ [flex][ten] {
+  -ms-flex: 10;
+  -webkit-flex: 10;
+  flex: 10;
+}
+
+html /deep/ [flex][eleven] {
+  -ms-flex: 11;
+  -webkit-flex: 11;
+  flex: 11;
+}
+
+html /deep/ [flex][twelve] {
+  -ms-flex: 12;
+  -webkit-flex: 12;
+  flex: 12;
+}
+
+/* alignment in cross axis */
+
+html /deep/ [layout][start] {
+  -ms-flex-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+html /deep/ [layout][center], html /deep/ [layout][center-center] {
+  -ms-flex-align: center;
+  -webkit-align-items: center;
+  align-items: center;
+}
+
+html /deep/ [layout][end] {
+  -ms-flex-align: end;
+  -webkit-align-items: flex-end;
+  align-items: flex-end;
+}
+
+/* alignment in main axis */
+
+html /deep/ [layout][start-justified] {
+  -ms-flex-pack: start;
+  -webkit-justify-content: flex-start;
+  justify-content: flex-start;
+}
+
+html /deep/ [layout][center-justified], html /deep/ [layout][center-center] {
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+}
+
+html /deep/ [layout][end-justified] {
+  -ms-flex-pack: end;
+  -webkit-justify-content: flex-end;
+  justify-content: flex-end;
+}
+
+html /deep/ [layout][around-justified] {
+  -ms-flex-pack: around;
+  -webkit-justify-content: space-around;
+  justify-content: space-around;
+}
+
+html /deep/ [layout][justified] {
+  -ms-flex-pack: justify;
+  -webkit-justify-content: space-between;
+  justify-content: space-between;
+}
+
+/* self alignment */
+
+html /deep/ [self-start] {
+  -ms-align-self: flex-start;
+  -webkit-align-self: flex-start;
+  align-self: flex-start;
+}
+
+html /deep/ [self-center] {
+  -ms-align-self: center;
+  -webkit-align-self: center;
+  align-self: center;
+}
+
+html /deep/ [self-end] {
+  -ms-align-self: flex-end;
+  -webkit-align-self: flex-end;
+  align-self: flex-end;
+}
+
+html /deep/ [self-stretch] {
+  -ms-align-self: stretch;
+  -webkit-align-self: stretch;
+  align-self: stretch;
+}
+
+/*******************************
+          Other Layout
+*******************************/
+
+html /deep/ [block] {
+  display: block;
+}
+
+/* ie support for hidden */
+html /deep/ [hidden] {
+  display: none !important;
+}
+
+html /deep/ [relative] {
+  position: relative;
+}
+
+html /deep/ [fit] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+body[fullbleed] {
+  margin: 0;
+  height: 100vh;
+}
+
+/*******************************
+            Other
+*******************************/
+
+html /deep/ [segment], html /deep/ segment {
+  display: block;
+  position: relative;
+  -webkit-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 1em 0.5em;
+  padding: 1em;
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
+  border-radius: 5px 5px 5px 5px;
+}
+
+</style>
+<script src="../components/polymer-dev/src/polymer.js"></script>
+<script src="../components/polymer-dev/src/boot.js"></script>
+<script src="../components/polymer-dev/src/lib/lang.js"></script>
+<script src="../components/polymer-dev/src/lib/job.js"></script>
+<script src="../components/polymer-dev/src/lib/dom.js"></script>
+<script src="../components/polymer-dev/src/lib/super.js"></script>
+<script src="../components/polymer-dev/src/lib/deserialize.js"></script>
+<script src="../components/polymer-dev/src/api.js"></script>
+<script src="../components/polymer-dev/src/instance/utils.js"></script>
+<script src="../components/polymer-dev/src/instance/events.js"></script>
+<script src="../components/polymer-dev/src/instance/attributes.js"></script>
+<script src="../components/polymer-dev/src/instance/properties.js"></script>
+<script src="../components/polymer-dev/src/instance/mdv.js"></script>
+<script src="../components/polymer-dev/src/instance/base.js"></script>
+<script src="../components/polymer-dev/src/instance/styles.js"></script>
+<script src="../components/polymer-dev/src/declaration/polymer.js"></script>
+<script src="../components/polymer-dev/src/declaration/path.js"></script>
+<script src="../components/polymer-dev/src/declaration/styles.js"></script>
+<script src="../components/polymer-dev/src/declaration/events.js"></script>
+<script src="../components/polymer-dev/src/declaration/properties.js"></script>
+<script src="../components/polymer-dev/src/declaration/attributes.js"></script>
+<script src="../components/polymer-dev/src/declaration/mdv.js"></script>
+<script src="../components/polymer-dev/src/declaration/prototype.js"></script>
+<script src="../components/polymer-dev/src/declaration/queue.js"></script>
+<script src="../components/polymer-dev/src/declaration/import.js"></script>
+<script src="../components/polymer-dev/src/declaration/polymer-element.js"></script>
+<script src="../components/polymer-dev/src/lib/auto-binding.js"></script> </div>
+    <div hidden><script src="../components/firebase/firebase.js"></script>
+
+
+<!--
+Element wrapper for the Firebase Web API (http://firebase.com).
+
+`firebase-element` maps a firebase location to a `data` property. 
+
+    <firebase-element id="base" location="https://YOUR.firebaseio.com/" data="{{data}}" keys="{{keys}}"></firebase-element>
+
+    <h3>My Firebase Data</h3>
+    
+    <template repeat="{{key in keys}}">
+      <p>{{key}}: {{data[key]}}</p>
+    </template>
+    
+## Data Persistence
+
+- changes that occur on the remote data are automatically reflected back into 
+  the client-side data.
+- assignments to the `data` property, or modifications to `data`'s **own** properties, are 
+  automatically persisted back to the Firebase store.
+- changes to **sub-properties** of `data` are not generally observable and are **not** 
+  automatically persisted.
+- properties bound to the `data` property work just like `data` itself (all Polymer
+  bindings are like this).
+  
+Examples:
+
+    // assume `this.data` is bound to the firebase-element data as shown above
+    
+    resetData: function() {
+      // setting the data object directly will automatically also 
+      // set the firebase location 
+      this.data = {
+        name: 'anonymous',
+        info: 'none',
+        more: {
+          color: "yellow"
+        }
+      };
+    },
+
+    updateInfo: function(info) {
+      // setting top-level properties of the data object 
+      // will automatically update the database
+      // this works via binding also
+      this.data.info = info;
+    },
+
+    updateColor: function(color) {
+      // changes to deep properties of the data object 
+      // are not observed automatically, and must be
+      // commited to update the database
+      this.data.more.color = color;
+      // in this case, we use `commitProperty` to commit 
+      // the top-level property that has deep changes
+      this.$.base.commitProperty('more');
+    }
+
+## Observing Changes
+
+Whenever `firebase-element` detects a change in data, from either client or server side, it
+bubbles a `data-change` event. `data-change` events are frequency-limited (throttled).
+
+Changes in data objects are also observable directly, but you must observe relevant properties
+directly. Changes in sub-properties are not automatically observed, following normal Polymer rules.
+
+Examples:
+
+    observe: {
+      // dataChanged only called if data is pointed at a new object
+      // changes to data's _properties or sub-properites are not observed_
+      data: 'dataChanged',
+      // dataNameChanged called if `data.name` changes
+      'data.name': 'dataNameChanged'
+    } 
+
+## Arrays and Objects
+
+Firebase stores all data as Objects, even Arrays are stored as objects with numerical keys. 
+As a convenience, the Firebase Web API automatically converts Array-like Objects into Arrays
+for use JavaScript.
+
+Arrays are generally inconvenient for large data-storage. For example, if you delete an
+element from an array, all the subsequent elements need their indices (keys) updated.
+
+To support lists of data without using Arrays, Firebase supports a `push` method which 
+adds an entry to an Object using a string key instead of an index.
+
+    addEntry: function(value) {
+      this.$.base.push({foo: value});
+    }
+
+## Child Events
+
+Firebase supports notifications when properties on `data` are removed, added, or modified. 
+Any of these changes will cause firebase-element to fire `data-change` method as described 
+above. However, you can also listen for discrete child events, by setting `childEvents`
+property to true. The events are `child-added`, `child-removed`, and `child-changed`. Each
+`event` object has a `detail` property with `name` and `value` properties identifying the 
+modified item.
+
+Example:
+
+    <firebase-element childEvents on-child-added="{{childAdded}}" ...>
+    ...
+    childAdded: function(event) {
+      console.log('added ', event.detail.name, ':', event.detail.value);
+    }
+
+@class firebase-element
+@blurb Element wrapper for the Firebase Web API (http://firebase.com).
+@status alpha
+@snap snap.png
+-->
+<polymer-element name="firebase-element" assetpath="../components/firebase-element/">
+<script>
+  /*
+    note: switching between Array and Object datatypes will mess up 
+    live firebase-element elements
+  */
+  Polymer('firebase-element', {
+    publish: {
+      /**
+       * Fired when properties on `data` are added, removed, or modified.
+       *
+       * @event data-change
+       */
+
+      /**
+       * Firebase location mapped to `data`.
+       * @attribute location
+       * @type String
+       */
+      location: null,
+      /**
+       * Firebase `ref` object corresponding to `location`.
+       * @attribute ref
+       * @type Object
+       */
+      ref: null,
+      /**
+       * Restricts the number of records reflected on the client.
+       * @attribute limit
+       * @type Number
+       */
+      limit: 0,
+      /**
+       * Specify a starting record for the set of records reflected on the client.
+       * @attribute start
+       * @type Any
+       */
+      start: null,
+      /**
+       * Specify an ending record for the set of records reflected on the client.
+       * @attribute end
+       * @type Any
+       */
+      end: null,
+      /**
+       * The `data` object mapped to `location`.
+       * @attribute data
+       * @type Object
+       */
+      data: null,
+      /**
+       * All keys in data (array of names, if you think of data as a set of name/value pairs).
+       * @attribute keys
+       * @type Array
+       */
+      keys: null,
+      /**
+       * If true, will fire `child-added`, `child-removed`, `child-changed` events.
+       * @attribute childEvents
+       * @type Boolean
+       */
+      childEvents: false,
+      /**
+       * When set, data will be stored with the given Firebase priority level.
+       * @attribute priority
+       * @type Number
+       */
+      priority: null,
+      /**
+       * Reflects whether the data at this locaation as been read at least once
+       * @attribute initialized
+       * @type Boolean
+       */
+      dataReady: false,
+      /**
+       * If true, will log various occurances to the console api.
+       * @attribute log
+       * @type Boolean
+       */
+      log: false
+    },
+    observe: {
+      'ref limit start end': 'requery'
+    },
+    locationChanged: function() {
+      // shut-down previous observers (if any)
+      this.closeQuery();
+      this.closeObserver();
+      // connect to db
+      if (this.location) {
+        this.ref = new Firebase(this.location);
+      } else {
+        this.ref = null;
+      }
+    },
+    requery: function() {
+      // shut-down previous observers (if any)
+      this.closeQuery();
+      this.closeObserver();
+      // construct new query
+      var query = this.ref;
+      if (query) {
+        if (this.start) {
+          query = query.startAt(this.start);
+        }
+        if (this.end) {
+          query = query.endAt(this.start);
+        }
+        if (this.limit > 0) {
+          query = query.limit(this.limit);
+        }
+        this.query = query;
+      }
+    },
+    queryChanged: function() {
+      // initialize
+      this._setData(null);
+      // data acquisition
+      this.dataReady = false;
+      this.valueLoading = true;
+      this.query.once('value', this.valueLoaded, this);
+      // observe server-side data
+      this.observeQuery();
+    },
+    valueLoaded: function(snapshot) {
+      this.valueLoading = false;
+      if (this.ref.name() !== snapshot.name()) {
+        this.log && console.warn('squelching stale response [%s]', snapshot.name());
+        return;
+      }
+      this.log && console.log('acquired value ' + this.location);
+      this.dataReady = true;
+      this._setData(snapshot.val());
+      if (this.data) {
+        this.dataChange();
+      }
+    },
+    _setData: function(data) {
+      this.closeObserver();
+      this.data = this._data = data;
+      this.observeData();
+    },
+    //
+    // server-side data-observation
+    //
+    observeQuery: function() {
+      // server side dynamics
+      this.query.on('child_added', this.childAdded, this);
+      this.query.on('child_changed', this.childChanged, this);
+      this.query.on('child_removed', this.childRemoved, this);
+    },
+    closeQuery: function() {
+      if (this.query) {
+        this.query.off();
+      }
+    },
+    //
+    // client-side data-observation
+    //
+    observeData: function() {
+      if (this.data instanceof Array) {
+        this.observer = new ArrayObserver(this.data);
+        this.observer.open(this.observeArray.bind(this));
+      } else if (this.data instanceof Object) {
+        this.observer = new ObjectObserver(this.data);
+        this.observer.open(this.observeObject.bind(this));
+      }
+    },
+    closeObserver: function() {
+      if (this.observer) {
+        this.observer.close();
+        this.observer = null;
+      }
+    },
+    dataChanged: function() {
+      if (this._data !== this.data) {
+        this._setData(this.data);
+        this.commit();
+      }
+    },
+    priorityChanged: function() {
+      if (this.ref && (this.priority != null)) {
+        this.ref.setPriority(this.priority);
+      }
+    },
+    discardObservations: function() {
+      if (this.observer) {
+        this.observer.discardChanges();
+      }
+    },
+    deliverObservations: function() {
+      if (this.observer) {
+        this.observer.deliver();
+      }
+    },
+    //
+    // server-side effects
+    //
+    childAdded: function(snapshot) {
+      if (this.data) {
+        // ignore initial adds, we'll take the 'value' instead
+        this.modulateData('updateData', snapshot);
+      } else if (!this.valueLoading) {
+        // if children are added to a previously null location, grab the whole value in one go
+        this.valueLoading = true;
+        this.query.once('value', this.valueLoaded, this);
+      }
+      this.childEvent('child-added', snapshot);
+    },
+    childChanged: function(snapshot) {
+      if (!this.valueLoading) {
+        this.modulateData('updateData', snapshot);
+      }
+      this.childEvent('child-changed', snapshot);
+    },
+    childRemoved: function(snapshot) {
+      if (!this.valueLoading) {
+        this.modulateData('removeData', snapshot);
+      }
+      this.childEvent('child-removed', snapshot);
+    },
+    childEvent: function(kind, snapshot) {
+      this.log && console.log(kind, snapshot.name());
+      if (this.childEvents) {
+        this.fire(kind, {name: snapshot.name(), value: snapshot.val()});
+      }
+    },
+    modulateData: function(operation, snapshot) {
+      // handle any pending observations
+      this.deliverObservations();
+      this[operation](snapshot);
+      this.dataChange();
+      // discard any observations so we don't send this value back to the
+      // server, it may already be stale from the server's perspective
+      this.discardObservations();      
+    },
+    updateData: function(snapshot) {
+      if (!this.data) {
+        this.data = {};
+      }
+      this.data[snapshot.name()] = snapshot.val();
+    },
+    removeData: function(snapshot) {
+      var key = snapshot.name();
+      if (this.data instanceof Array) {
+        this.data.splice(key, 1);
+        if (data.length == 0) {
+          this._setData(null);
+        }
+      } else if (this.data) {
+        delete this.data[key];
+        if (Object.keys(this.data).length === 0) {
+          this._setData(null);
+        }
+      }
+    },
+    dataChange: function() {
+      //this.job('change', function() {
+        if (this.data) {
+          this.keys = this.data ? Object.keys(this.data) : [];
+        }
+        this.fire('data-change');
+      //});
+    },
+    //
+    // client-side effects
+    //
+    observeArray: function(splices) {
+      //console.warn('observeArray');
+      // TODO(sjmiles): arrays are nasty because simple insertions/deletions
+      // cause changes to ripple through keys
+      this.commit();
+    },
+    observeObject: function(added, removed, changed, getOldValueFn) {
+      // client-side dynamics
+      var ctrlr = this;
+      Object.keys(added).forEach(function(property) {
+        ctrlr.commitProperty(property);
+      });
+      Object.keys(removed).forEach(function(property) {
+        ctrlr.remove(property);
+      });
+      Object.keys(changed).forEach(function(property) {
+        ctrlr.commitProperty(property);
+      });
+    },
+    // api for manual commits
+    commitProperty: function(key) {
+      this.log && console.log('commitProperty ' + key);
+      if (this.ref) {
+        this.ref.child(key).set(this.data[key]);
+      }
+    },
+    remove: function(key) {
+      this.ref.child(key).remove();
+    },
+    commit: function() {
+      this.log && console.log('commit');
+      if (this.ref) {
+        if (this.priority != null) {
+          this.ref.setWithPriority(this.data || {}, this.priority);
+        } else {
+          this.ref.set(this.data || {});
+        }
+      }
+    },
+    push: function(item) {
+      var neo;
+      if (this.data instanceof Array) {
+        this.ref.commitProperty(this.data.push(item)-1);
+      } else {
+        neo = this.ref.push(item);
+      }
+      this.dataChange();
+      return neo;
+    }
+  });
+</script>
+</polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`paper-tabs` is a `core-selector` styled to look like tabs. Tabs make it easy to 
+explore and switch between different views or functional aspects of an app, or 
+to browse categorized data sets.
+
+Use `selected` property to get or set the selected tab.
+
+Example:
+
+    <paper-tabs selected="0">
+      <paper-tab>TAB 1</paper-tab>
+      <paper-tab>TAB 2</paper-tab>
+      <paper-tab>TAB 3</paper-tab>
+    </paper-tabs>
+
+See <a href="#paper-tab">paper-tab</a> for more information about 
+`paper-tab`.
+
+Styling tabs:
+
+To change the sliding bar color:
+
+    paper-tabs.pink::shadow #selectionBar {
+      background-color: #ff4081;
+    }
+
+@group Paper Elements
+@element paper-tabs
+@extends core-selector
+@homepage github.io
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+@group Polymer Core Elements
+
+`<core-selector>` is used to manage a list of elements that can be selected.
+
+The attribute `selected` indicates which item element is being selected.
+The attribute `multi` indicates if multiple items can be selected at once.
+Tapping on the item element would fire `core-activate` event. Use
+`core-select` event to listen for selection changes.
+
+Example:
+
+    <core-selector selected="0">
+      <div>Item 1</div>
+      <div>Item 2</div>
+      <div>Item 3</div>
+    </core-selector>
+
+`<core-selector>` is not styled. Use the `core-selected` CSS class to style the selected element.
+
+    <style>
+      .item.core-selected {
+        background: #eee;
+      }
+    </style>
+    ...
+    <core-selector>
+      <div class="item">Item 1</div>
+      <div class="item">Item 2</div>
+      <div class="item">Item 3</div>
+    </core-selector>
+
+@element core-selector
+@status stable
+@homepage github.io
+-->
+
+<!--
+Fired when an item's selection state is changed. This event is fired both
+when an item is selected or deselected. The `isSelected` detail property
+contains the selection state.
+
+@event core-select
+@param {Object} detail
+  @param {boolean} detail.isSelected true for selection and false for deselection
+  @param {Object} detail.item the item element
+-->
+<!--
+Fired when an item element is tapped.
+
+@event core-activate
+@param {Object} detail
+  @param {Object} detail.item the item element
+-->
+
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<!--
+@group Polymer Core Elements
+
+The `<core-selection>` element is used to manage selection state. It has no
+visual appearance and is typically used in conjunction with another element.
+For example, [core-selector](#core-selector)
+use a `<core-selection>` to manage selection.
+
+To mark an item as selected, call the `select(item)` method on 
+`<core-selection>`. The item itself is an argument to this method.
+
+The `<core-selection>`element manages selection state for any given set of
+items. When an item is selected, the `core-select` event is fired.
+
+The attribute `multi` indicates if multiple items can be selected at once.
+  
+Example:
+ 
+    <polymer-element name="selection-example">
+       <template>
+         <style>
+           polyfill-next-selector { content: ':host > .selected'; }
+           ::content > .selected {
+             font-weight: bold;
+             font-style: italic;
+           }
+         </style>
+         <ul on-tap="{{itemTapAction}}">
+           <content></content>
+         </ul>
+         <core-selection id="selection" multi
+                         on-core-select="{{selectAction}}"></core-selection>
+       </template>
+       <script>
+         Polymer('selection-example', {
+           itemTapAction: function(e, detail, sender) {
+             this.$.selection.select(e.target);
+           },
+           selectAction: function(e, detail, sender) {
+             detail.item.classList.toggle('selected', detail.isSelected);
+           }
+         });
+       </script>
+    </polymer-element>
+
+    <selection-example>
+      <li>Red</li>
+      <li>Green</li>
+      <li>Blue</li>
+    </selection-example>
+ 
+@element core-selection
+-->
+
+<!--
+Fired when an item's selection state is changed. This event is fired both
+when an item is selected or deselected. The `isSelected` detail property
+contains the selection state.
+
+@event core-select
+@param {Object} detail
+  @param {boolean} detail.isSelected true for selection and false for de-selection
+  @param {Object} detail.item the item element
+-->
+
+
+<polymer-element name="core-selection" attributes="multi" hidden assetpath="../components/core-selection/">
+  <script>
+    Polymer('core-selection', {
+      /**
+       * If true, multiple selections are allowed.
+       *
+       * @attribute multi
+       * @type boolean
+       * @default false
+       */
+      multi: false,
+      ready: function() {
+        this.clear();
+      },
+      clear: function() {
+        this.selection = [];
+      },
+      /**
+       * Retrieves the selected item(s).
+       * @method getSelection
+       * @returns Returns the selected item(s). If the multi property is true,
+       * getSelection will return an array, otherwise it will return 
+       * the selected item or undefined if there is no selection.
+      */
+      getSelection: function() {
+        return this.multi ? this.selection : this.selection[0];
+      },
+      /**
+       * Indicates if a given item is selected.
+       * @method isSelected
+       * @param {any} item The item whose selection state should be checked.
+       * @returns Returns true if `item` is selected.
+      */
+      isSelected: function(item) {
+        return this.selection.indexOf(item) >= 0;
+      },
+      setItemSelected: function(item, isSelected) {
+        if (item !== undefined && item !== null) {
+          if (isSelected) {
+            this.selection.push(item);
+          } else {
+            var i = this.selection.indexOf(item);
+            if (i >= 0) {
+              this.selection.splice(i, 1);
+            }
+          }
+          this.fire("core-select", {isSelected: isSelected, item: item});
+        }
+      },
+      /**
+       * Set the selection state for a given `item`. If the multi property
+       * is true, then the selected state of `item` will be toggled; otherwise
+       * the `item` will be selected.
+       * @method select
+       * @param {any} item: The item to select.
+      */
+      select: function(item) {
+        if (this.multi) {
+          this.toggle(item);
+        } else if (this.getSelection() !== item) {
+          this.setItemSelected(this.getSelection(), false);
+          this.setItemSelected(item, true);
+        }
+      },
+      /**
+       * Toggles the selection state for `item`.
+       * @method toggle
+       * @param {any} item: The item to toggle.
+      */
+      toggle: function(item) {
+        this.setItemSelected(item, !this.isSelected(item));
+      }
+    });
+  </script>
+</polymer-element>
+
+
+<polymer-element name="core-selector" attributes="selected multi valueattr selectedClass selectedProperty selectedAttribute selectedItem selectedModel selectedIndex notap target itemsSelector activateEvent" assetpath="../components/core-selector/">
+
+  <template>
+    <core-selection id="selection" multi="{{multi}}" on-core-select="{{selectionSelect}}"></core-selection>
+    <content id="items" select="*"></content>
+  </template>
+
+  <script>
+
+    Polymer('core-selector', {
+
+      /**
+       * Gets or sets the selected element.  Default to use the index
+       * of the item element.
+       *
+       * If you want a specific attribute value of the element to be
+       * used instead of index, set "valueattr" to that attribute name.
+       *
+       * Example:
+       *
+       *     <core-selector valueattr="label" selected="foo">
+       *       <div label="foo"></div>
+       *       <div label="bar"></div>
+       *       <div label="zot"></div>
+       *     </core-selector>
+       *
+       * In multi-selection this should be an array of values.
+       *
+       * Example:
+       *
+       *     <core-selector id="selector" valueattr="label" multi>
+       *       <div label="foo"></div>
+       *       <div label="bar"></div>
+       *       <div label="zot"></div>
+       *     </core-selector>
+       *
+       *     this.$.selector.selected = ['foo', 'zot'];
+       *
+       * @attribute selected
+       * @type Object
+       * @default null
+       */
+      selected: null,
+
+      /**
+       * If true, multiple selections are allowed.
+       *
+       * @attribute multi
+       * @type boolean
+       * @default false
+       */
+      multi: false,
+
+      /**
+       * Specifies the attribute to be used for "selected" attribute.
+       *
+       * @attribute valueattr
+       * @type string
+       * @default 'name'
+       */
+      valueattr: 'name',
+
+      /**
+       * Specifies the CSS class to be used to add to the selected element.
+       * 
+       * @attribute selectedClass
+       * @type string
+       * @default 'core-selected'
+       */
+      selectedClass: 'core-selected',
+
+      /**
+       * Specifies the property to be used to set on the selected element
+       * to indicate its active state.
+       *
+       * @attribute selectedProperty
+       * @type string
+       * @default ''
+       */
+      selectedProperty: '',
+
+      /**
+       * Specifies the attribute to set on the selected element to indicate
+       * its active state.
+       *
+       * @attribute selectedAttribute
+       * @type string
+       * @default 'active'
+       */
+      selectedAttribute: 'active',
+
+      /**
+       * Returns the currently selected element. In multi-selection this returns
+       * an array of selected elements.
+       * 
+       * @attribute selectedItem
+       * @type Object
+       * @default null
+       */
+      selectedItem: null,
+
+      /**
+       * In single selection, this returns the model associated with the
+       * selected element.
+       * 
+       * @attribute selectedModel
+       * @type Object
+       * @default null
+       */
+      selectedModel: null,
+
+      /**
+       * In single selection, this returns the selected index.
+       *
+       * @attribute selectedIndex
+       * @type number
+       * @default -1
+       */
+      selectedIndex: -1,
+
+      /**
+       * The target element that contains items.  If this is not set 
+       * core-selector is the container.
+       * 
+       * @attribute target
+       * @type Object
+       * @default null
+       */
+      target: null,
+
+      /**
+       * This can be used to query nodes from the target node to be used for 
+       * selection items.  Note this only works if the 'target' property is set.
+       *
+       * Example:
+       *
+       *     <core-selector target="{{$.myForm}}" itemsSelector="input[type=radio]"></core-selector>
+       *     <form id="myForm">
+       *       <label><input type="radio" name="color" value="red"> Red</label> <br>
+       *       <label><input type="radio" name="color" value="green"> Green</label> <br>
+       *       <label><input type="radio" name="color" value="blue"> Blue</label> <br>
+       *       <p>color = {{color}}</p>
+       *     </form>
+       * 
+       * @attribute itemsSelector
+       * @type string
+       * @default ''
+       */
+      itemsSelector: '',
+
+      /**
+       * The event that would be fired from the item element to indicate
+       * it is being selected.
+       *
+       * @attribute activateEvent
+       * @type string
+       * @default 'tap'
+       */
+      activateEvent: 'tap',
+
+      /**
+       * Set this to true to disallow changing the selection via the
+       * `activateEvent`.
+       *
+       * @attribute notap
+       * @type boolean
+       * @default false
+       */
+      notap: false,
+
+      ready: function() {
+        this.activateListener = this.activateHandler.bind(this);
+        this.observer = new MutationObserver(this.updateSelected.bind(this));
+        if (!this.target) {
+          this.target = this;
+        }
+      },
+
+      get items() {
+        if (!this.target) {
+          return [];
+        }
+        var nodes = this.target !== this ? (this.itemsSelector ? 
+            this.target.querySelectorAll(this.itemsSelector) : 
+                this.target.children) : this.$.items.getDistributedNodes();
+        return Array.prototype.filter.call(nodes || [], function(n) {
+          return n && n.localName !== 'template';
+        });
+      },
+
+      targetChanged: function(old) {
+        if (old) {
+          this.removeListener(old);
+          this.observer.disconnect();
+          this.clearSelection();
+        }
+        if (this.target) {
+          this.addListener(this.target);
+          this.observer.observe(this.target, {childList: true});
+          this.updateSelected();
+        }
+      },
+
+      addListener: function(node) {
+        Polymer.addEventListener(node, this.activateEvent, this.activateListener);
+      },
+
+      removeListener: function(node) {
+        Polymer.removeEventListener(node, this.activateEvent, this.activateListener);
+      },
+
+      get selection() {
+        return this.$.selection.getSelection();
+      },
+
+      selectedChanged: function() {
+        this.updateSelected();
+      },
+
+      updateSelected: function() {
+        this.validateSelected();
+        if (this.multi) {
+          this.clearSelection();
+          this.selected && this.selected.forEach(function(s) {
+            this.valueToSelection(s);
+          }, this);
+        } else {
+          this.valueToSelection(this.selected);
+        }
+      },
+
+      validateSelected: function() {
+        // convert to an array for multi-selection
+        if (this.multi && !Array.isArray(this.selected) && 
+            this.selected !== null && this.selected !== undefined) {
+          this.selected = [this.selected];
+        }
+      },
+
+      clearSelection: function() {
+        if (this.multi) {
+          this.selection.slice().forEach(function(s) {
+            this.$.selection.setItemSelected(s, false);
+          }, this);
+        } else {
+          this.$.selection.setItemSelected(this.selection, false);
+        }
+        this.selectedItem = null;
+        this.$.selection.clear();
+      },
+
+      valueToSelection: function(value) {
+        var item = (value === null || value === undefined) ? 
+            null : this.items[this.valueToIndex(value)];
+        this.$.selection.select(item);
+      },
+
+      updateSelectedItem: function() {
+        this.selectedItem = this.selection;
+      },
+
+      selectedItemChanged: function() {
+        if (this.selectedItem) {
+          var t = this.selectedItem.templateInstance;
+          this.selectedModel = t ? t.model : undefined;
+        } else {
+          this.selectedModel = null;
+        }
+        this.selectedIndex = this.selectedItem ? 
+            parseInt(this.valueToIndex(this.selected)) : -1;
+      },
+
+      valueToIndex: function(value) {
+        // find an item with value == value and return it's index
+        for (var i=0, items=this.items, c; (c=items[i]); i++) {
+          if (this.valueForNode(c) == value) {
+            return i;
+          }
+        }
+        // if no item found, the value itself is probably the index
+        return value;
+      },
+
+      valueForNode: function(node) {
+        return node[this.valueattr] || node.getAttribute(this.valueattr);
+      },
+
+      // events fired from <core-selection> object
+      selectionSelect: function(e, detail) {
+        this.updateSelectedItem();
+        if (detail.item) {
+          this.applySelection(detail.item, detail.isSelected);
+        }
+      },
+
+      applySelection: function(item, isSelected) {
+        if (this.selectedClass) {
+          item.classList.toggle(this.selectedClass, isSelected);
+        }
+        if (this.selectedProperty) {
+          item[this.selectedProperty] = isSelected;
+        }
+        if (this.selectedAttribute && item.setAttribute) {
+          if (isSelected) {
+            item.setAttribute(this.selectedAttribute, '');
+          } else {
+            item.removeAttribute(this.selectedAttribute);
+          }
+        }
+      },
+
+      // event fired from host
+      activateHandler: function(e) {
+        if (!this.notap) {
+          var i = this.findDistributedTarget(e.target, this.items);
+          if (i >= 0) {
+            var item = this.items[i];
+            var s = this.valueForNode(item) || i;
+            if (this.multi) {
+              if (this.selected) {
+                this.addRemoveSelected(s);
+              } else {
+                this.selected = [s];
+              }
+            } else {
+              this.selected = s;
+            }
+            this.asyncFire('core-activate', {item: item});
+          }
+        }
+      },
+
+      addRemoveSelected: function(value) {
+        var i = this.selected.indexOf(value);
+        if (i >= 0) {
+          this.selected.splice(i, 1);
+        } else {
+          this.selected.push(value);
+        }
+        this.valueToSelection(value);
+      },
+
+      findDistributedTarget: function(target, nodes) {
+        // find first ancestor of target (including itself) that
+        // is in nodes, if any
+        while (target && target != this) {
+          var i = Array.prototype.indexOf.call(nodes, target);
+          if (i >= 0) {
+            return i;
+          }
+          target = target.parentNode;
+        }
+      }
+    });
+  </script>
+</polymer-element>
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`paper-tab` is styled to look like a tab.  It should be used in conjunction with
+`paper-tabs`.
+
+Example:
+
+    <paper-tabs selected="0">
+      <paper-tab>TAB 1</paper-tab>
+      <paper-tab>TAB 2</paper-tab>
+      <paper-tab>TAB 3</paper-tab>
+    </paper-tabs>
+    
+Styling tab:
+
+To change the ink color:
+
+    .pink paper-tab::shadow #ink {
+      color: #ff4081;
+    }
+
+@group Paper Elements
+@element paper-tab
+@homepage github.io
+-->
+
+<!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`paper-ripple` provides a visual effect that other paper elements can
+use to simulate a rippling effect emanating from the point of contact.  The
+effect can be visualized as a concentric circle with motion.
+
+Example:
+
+    <paper-ripple></paper-ripple>
+
+`paper-ripple` listens to "down" and "up" events so it would display ripple
+effect when touches on it.  You can also defeat the default behavior and 
+manually route the down and up actions to the ripple element.  Note that it is
+important if you call downAction() you will have to make sure to call upAction()
+so that `paper-ripple` would end the animation loop.
+
+Example:
+
+    <paper-ripple id="ripple" style="pointer-events: none;"></paper-ripple>
+    ...
+    downAction: function(e) {
+      this.$.ripple.downAction({x: e.x, y: e.y});
+    },
+    upAction: function(e) {
+      this.$.ripple.upAction();
+    }
+
+Styling ripple effect:
+
+  Use CSS color property to style the ripple:
+
+    paper-ripple {
+      color: #4285f4;
+    }
+
+  Note that CSS color property is inherited so it is not required to set it on
+  the `paper-ripple` element directly.
+
+Apply `recenteringTouch` class to make the recentering rippling effect.
+
+    <paper-ripple class="recenteringTouch"></paper-ripple>
+
+Apply `circle` class to make the rippling effect within a circle.
+
+    <paper-ripple class="circle"></paper-ripple>
+
+@group Paper Elements
+@element paper-ripple
+@homepage github.io
+-->
+
+
+
+<polymer-element name="paper-ripple" attributes="initialOpacity opacityDecayVelocity" assetpath="../components/paper-ripple/">
+<template>
+
+  <style>
+
+    :host {
+      display: block;
+      position: relative;
+    }
+
+    #canvas {
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    :host(.circle) #canvas {
+      border-radius: 50%;
+    }
+
+  </style>
+
+</template>
+<script>
+
+  (function() {
+
+    var waveMaxRadius = 150;
+    //
+    // INK EQUATIONS
+    //
+    function waveRadiusFn(touchDownMs, touchUpMs, anim) {
+      // Convert from ms to s.
+      var touchDown = touchDownMs / 1000;
+      var touchUp = touchUpMs / 1000;
+      var totalElapsed = touchDown + touchUp;
+      var ww = anim.width, hh = anim.height;
+      // use diagonal size of container to avoid floating point math sadness
+      var waveRadius = Math.min(Math.sqrt(ww * ww + hh * hh), waveMaxRadius) * 1.1 + 5;
+      var duration = 1.1 - .2 * (waveRadius / waveMaxRadius);
+      var tt = (totalElapsed / duration);
+
+      var size = waveRadius * (1 - Math.pow(80, -tt));
+      return Math.abs(size);
+    }
+
+    function waveOpacityFn(td, tu, anim) {
+      // Convert from ms to s.
+      var touchDown = td / 1000;
+      var touchUp = tu / 1000;
+      var totalElapsed = touchDown + touchUp;
+
+      if (tu <= 0) {  // before touch up
+        return anim.initialOpacity;
+      }
+      return Math.max(0, anim.initialOpacity - touchUp * anim.opacityDecayVelocity);
+    }
+
+    function waveOuterOpacityFn(td, tu, anim) {
+      // Convert from ms to s.
+      var touchDown = td / 1000;
+      var touchUp = tu / 1000;
+
+      // Linear increase in background opacity, capped at the opacity
+      // of the wavefront (waveOpacity).
+      var outerOpacity = touchDown * 0.3;
+      var waveOpacity = waveOpacityFn(td, tu, anim);
+      return Math.max(0, Math.min(outerOpacity, waveOpacity));
+    }
+
+    // Determines whether the wave should be completely removed.
+    function waveDidFinish(wave, radius, anim) {
+      var waveOpacity = waveOpacityFn(wave.tDown, wave.tUp, anim);
+      // If the wave opacity is 0 and the radius exceeds the bounds
+      // of the element, then this is finished.
+      if (waveOpacity < 0.01 && radius >= Math.min(wave.maxRadius, waveMaxRadius)) {
+        return true;
+      }
+      return false;
+    };
+
+    function waveAtMaximum(wave, radius, anim) {
+      var waveOpacity = waveOpacityFn(wave.tDown, wave.tUp, anim);
+      if (waveOpacity >= anim.initialOpacity && radius >= Math.min(wave.maxRadius, waveMaxRadius)) {
+        return true;
+      }
+      return false;
+    }
+
+    //
+    // DRAWING
+    //
+    function drawRipple(ctx, x, y, radius, innerColor, outerColor) {
+      if (outerColor) {
+        ctx.fillStyle = outerColor;
+        ctx.fillRect(0,0,ctx.canvas.width, ctx.canvas.height);
+      }
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+      ctx.fillStyle = innerColor;
+      ctx.fill();
+    }
+
+    //
+    // SETUP
+    //
+    function createWave(elem) {
+      var elementStyle = window.getComputedStyle(elem);
+      var fgColor = elementStyle.color;
+
+      var wave = {
+        waveColor: fgColor,
+        maxRadius: 0,
+        isMouseDown: false,
+        mouseDownStart: 0.0,
+        mouseUpStart: 0.0,
+        tDown: 0,
+        tUp: 0
+      };
+      return wave;
+    }
+
+    function removeWaveFromScope(scope, wave) {
+      if (scope.waves) {
+        var pos = scope.waves.indexOf(wave);
+        scope.waves.splice(pos, 1);
+      }
+    };
+
+    // Shortcuts.
+    var pow = Math.pow;
+    var now = Date.now;
+    if (window.performance && performance.now) {
+      now = performance.now.bind(performance);
+    }
+
+    function cssColorWithAlpha(cssColor, alpha) {
+        var parts = cssColor.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if (typeof alpha == 'undefined') {
+            alpha = 1;
+        }
+        if (!parts) {
+          return 'rgba(255, 255, 255, ' + alpha + ')';
+        }
+        return 'rgba(' + parts[1] + ', ' + parts[2] + ', ' + parts[3] + ', ' + alpha + ')';
+    }
+
+    function dist(p1, p2) {
+      return Math.sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
+    }
+
+    function distanceFromPointToFurthestCorner(point, size) {
+      var tl_d = dist(point, {x: 0, y: 0});
+      var tr_d = dist(point, {x: size.w, y: 0});
+      var bl_d = dist(point, {x: 0, y: size.h});
+      var br_d = dist(point, {x: size.w, y: size.h});
+      return Math.max(tl_d, tr_d, bl_d, br_d);
+    }
+
+    Polymer('paper-ripple', {
+
+      /**
+       * The initial opacity set on the wave.
+       *
+       * @attribute initialOpacity
+       * @type number
+       * @default 0.25
+       */
+      initialOpacity: 0.25,
+
+      /**
+       * How fast (opacity per second) the wave fades out.
+       *
+       * @attribute opacityDecayVelocity
+       * @type number
+       * @default 0.8
+       */
+      opacityDecayVelocity: 0.8,
+
+      backgroundFill: true,
+      pixelDensity: 2,
+
+      eventDelegates: {
+        down: 'downAction',
+        up: 'upAction'
+      },
+
+      attached: function() {
+        // create the canvas element manually becase ios
+        // does not render the canvas element if it is not created in the
+        // main document (component templates are created in a
+        // different document). See:
+        // https://bugs.webkit.org/show_bug.cgi?id=109073.
+        if (!this.$.canvas) {
+          var canvas = document.createElement('canvas');
+          canvas.id = 'canvas';
+          this.shadowRoot.appendChild(canvas);
+          this.$.canvas = canvas;
+        }
+      },
+
+      ready: function() {
+        this.waves = [];
+      },
+
+      setupCanvas: function() {
+        this.$.canvas.setAttribute('width', this.$.canvas.clientWidth * this.pixelDensity + "px");
+        this.$.canvas.setAttribute('height', this.$.canvas.clientHeight * this.pixelDensity + "px");
+        var ctx = this.$.canvas.getContext('2d');
+        ctx.scale(this.pixelDensity, this.pixelDensity);
+        if (!this._loop) {
+          this._loop = this.animate.bind(this, ctx);
+        }
+      },
+
+      downAction: function(e) {
+        this.setupCanvas();
+        var wave = createWave(this.$.canvas);
+
+        this.cancelled = false;
+        wave.isMouseDown = true;
+        wave.tDown = 0.0;
+        wave.tUp = 0.0;
+        wave.mouseUpStart = 0.0;
+        wave.mouseDownStart = now();
+
+        var width = this.$.canvas.width / 2; // Retina canvas
+        var height = this.$.canvas.height / 2;
+        var rect = this.getBoundingClientRect();
+        var touchX = e.x - rect.left;
+        var touchY = e.y - rect.top;
+
+        wave.startPosition = {x:touchX, y:touchY};
+
+        if (this.classList.contains("recenteringTouch")) {
+          wave.endPosition = {x: width / 2,  y: height / 2};
+          wave.slideDistance = dist(wave.startPosition, wave.endPosition);
+        }
+        wave.containerSize = Math.max(width, height);
+        wave.maxRadius = distanceFromPointToFurthestCorner(wave.startPosition, {w: width, h: height});
+        this.waves.push(wave);
+        requestAnimationFrame(this._loop);
+      },
+
+      upAction: function() {
+        for (var i = 0; i < this.waves.length; i++) {
+          // Declare the next wave that has mouse down to be mouse'ed up.
+          var wave = this.waves[i];
+          if (wave.isMouseDown) {
+            wave.isMouseDown = false
+            wave.mouseUpStart = now();
+            wave.mouseDownStart = 0;
+            wave.tUp = 0.0;
+            break;
+          }
+        }
+        this._loop && requestAnimationFrame(this._loop);
+      },
+
+      cancel: function() {
+        this.cancelled = true;
+      },
+
+      animate: function(ctx) {
+        var shouldRenderNextFrame = false;
+
+        // Clear the canvas
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        var deleteTheseWaves = [];
+        // The oldest wave's touch down duration
+        var longestTouchDownDuration = 0;
+        var longestTouchUpDuration = 0;
+        // Save the last known wave color
+        var lastWaveColor = null;
+        // wave animation values
+        var anim = {
+          initialOpacity: this.initialOpacity,
+          opacityDecayVelocity: this.opacityDecayVelocity,
+          height: ctx.canvas.height,
+          width: ctx.canvas.width
+        }
+
+        for (var i = 0; i < this.waves.length; i++) {
+          var wave = this.waves[i];
+
+          if (wave.mouseDownStart > 0) {
+            wave.tDown = now() - wave.mouseDownStart;
+          }
+          if (wave.mouseUpStart > 0) {
+            wave.tUp = now() - wave.mouseUpStart;
+          }
+
+          // Determine how long the touch has been up or down.
+          var tUp = wave.tUp;
+          var tDown = wave.tDown;
+          longestTouchDownDuration = Math.max(longestTouchDownDuration, tDown);
+          longestTouchUpDuration = Math.max(longestTouchUpDuration, tUp);
+
+          // Obtain the instantenous size and alpha of the ripple.
+          var radius = waveRadiusFn(tDown, tUp, anim);
+          var waveAlpha =  waveOpacityFn(tDown, tUp, anim);
+          var waveColor = cssColorWithAlpha(wave.waveColor, waveAlpha);
+          lastWaveColor = wave.waveColor;
+
+          // Position of the ripple.
+          var x = wave.startPosition.x;
+          var y = wave.startPosition.y;
+
+          // Ripple gravitational pull to the center of the canvas.
+          if (wave.endPosition) {
+
+            // This translates from the origin to the center of the view  based on the max dimension of  
+            var translateFraction = Math.min(1, radius / wave.containerSize * 2 / Math.sqrt(2) );
+
+            x += translateFraction * (wave.endPosition.x - wave.startPosition.x);
+            y += translateFraction * (wave.endPosition.y - wave.startPosition.y);
+          }
+
+          // If we do a background fill fade too, work out the correct color.
+          var bgFillColor = null;
+          if (this.backgroundFill) {
+            var bgFillAlpha = waveOuterOpacityFn(tDown, tUp, anim);
+            bgFillColor = cssColorWithAlpha(wave.waveColor, bgFillAlpha);
+          }
+
+          // Draw the ripple.
+          drawRipple(ctx, x, y, radius, waveColor, bgFillColor);
+
+          // Determine whether there is any more rendering to be done.
+          var maximumWave = waveAtMaximum(wave, radius, anim);
+          var waveDissipated = waveDidFinish(wave, radius, anim);
+          var shouldKeepWave = !waveDissipated || maximumWave;
+          var shouldRenderWaveAgain = !waveDissipated && !maximumWave;
+          shouldRenderNextFrame = shouldRenderNextFrame || shouldRenderWaveAgain;
+          if (!shouldKeepWave || this.cancelled) {
+            deleteTheseWaves.push(wave);
+          }
+       }
+
+        if (shouldRenderNextFrame) {
+          requestAnimationFrame(this._loop);
+        }
+
+        for (var i = 0; i < deleteTheseWaves.length; ++i) {
+          var wave = deleteTheseWaves[i];
+          removeWaveFromScope(this, wave);
+        }
+
+        if (!this.waves.length) {
+          // If there is nothing to draw, clear any drawn waves now because
+          // we're not going to get another requestAnimationFrame any more.
+          ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+          this._loop = null;
+        }
+      }
+
+    });
+
+  })();
+
+</script>
+</polymer-element>
+
+
+<polymer-element name="paper-tab" attributes="noink" role="tab" assetpath="../components/paper-tabs/">
+<template>
+
+  <style>/*
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: block;
+  position: relative;
+  overflow: hidden;
+}
+
+#tabContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.tab-content {
+  transition: opacity .1s cubic-bezier(0.4, 0.0, 1, 1), color .1s cubic-bezier(0.4, 0.0, 1, 1);
+  cursor: default;
+  pointer-events: none;
+}
+
+:host(:not(.core-selected)) .tab-content {
+  opacity: 0.6;
+}
+
+#ink {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  color: #ffff8d;
+}
+
+:host[noink] #ink {
+  pointer-events: none;
+}
+
+:host-context(paper-tabs[noink]) #ink {
+  pointer-events: none;
+}
+</style>
+  
+  <div id="tabContainer" center-justified="" center="" horizontal="" layout="">
+  
+    <div class="tab-content"><content></content></div>
+    <paper-ripple id="ink" initialopacity="0.95" opacitydecayvelocity="0.98"></paper-ripple>
+    
+  </div>
+  
+</template>
+<script>
+
+  Polymer('paper-tab', {
+    
+    /**
+     * If true, ink ripple effect is disabled.
+     *
+     * @attribute noink
+     * @type boolean
+     * @default false
+     */
+    noink: false
+    
+  });
+  
+</script>
+</polymer-element>
+
+
+<polymer-element name="paper-tabs" extends="core-selector" attributes="noink nobar" role="tablist" assetpath="../components/paper-tabs/">
+<template>
+
+  <style>/*
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: block;
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+  height: 48px;
+  overflow: hidden;
+}
+
+#tabsContainer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  white-space: nowrap;
+}
+
+#selectionBar {
+  position: absolute;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  background-color: #ffff8d;
+  transition: width, left;
+}
+
+#selectionBar[hidden] {
+  display: hidden;
+}
+
+#selectionBar.expand {
+  transition-duration: 0.15s;
+  transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1);
+}
+
+#selectionBar.contract {
+  transition-duration: 0.1s;
+  transition-timing-function: cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+
+polyfill-next-selector { content: '#tabsContainer > *:not(#selectionBar)'; }
+::content > * {
+  -ms-flex: 1;
+  -webkit-flex: 1;
+  flex: 1;
+}
+</style>
+  
+  <div id="tabsContainer" horizontal="" layout="">
+  
+    <shadow></shadow>
+    <div id="selectionBar" hidden?="{{nobar}}" on-transitionend="{{barTransitionEnd}}"></div>
+    
+  </div>
+    
+</template>
+<script>
+
+  Polymer('paper-tabs', {
+    
+    /**
+     * If true, ink effect is disabled.
+     *
+     * @attribute noink
+     * @type boolean
+     * @default false
+     */
+    noink: false,
+    
+    /**
+     * If true, the bottom bar to indicate the selected tab will not be shown.
+     *
+     * @attribute nobar
+     * @type boolean
+     * @default false
+     */
+    nobar: false,
+    
+    activateEvent: 'down',
+    
+    nostretch: false,
+    
+    selectedIndexChanged: function(old) {
+      var s = this.$.selectionBar.style;
+      
+      if (!this.selectedItem) {
+        s.width = 0;
+        s.left = 0;
+        return;
+      } 
+      
+      var w = 100 / this.items.length;
+      
+      if (this.nostretch || old === null || old === -1) {
+        s.width = w + '%';
+        s.left = this.selectedIndex * w + '%';
+        return;
+      }
+      
+      var m = 5;
+      this.$.selectionBar.classList.add('expand');
+      if (old < this.selectedIndex) {
+        s.width = w + w * (this.selectedIndex - old) - m + '%';
+      } else {
+        s.width = w + w * (old - this.selectedIndex) - m + '%';
+        s.left = this.selectedIndex * w + m + '%';
+      }
+    },
+    
+    barTransitionEnd: function() {
+      var cl = this.$.selectionBar.classList;
+      if (cl.contains('expand')) {
+        cl.remove('expand');
+        cl.add('contract');
+        var s = this.$.selectionBar.style;
+        var w = 100 / this.items.length;
+        s.width = w + '%';
+        s.left = this.selectedIndex * w + '%';
+      } else if (cl.contains('contract')) {
+        cl.remove('contract');
+      }
+    }
+    
+  });
+  
+</script>
+</polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`core-toolbar` is a horizontal bar containing elements that can be used for
+label, navigation, search and actions.
+
+    <core-toolbar>
+      <core-icon-button icon="menu" on-tap="{{menuAction}}"></core-icon-button>
+      <div flex>Title</div>
+      <core-icon-button icon="more" on-tap="{{moreAction}}"></core-icon-button>
+    </core-toolbar>
+
+`core-toolbar` has a standard height, but can made be taller by setting `tall`
+class on the `core-toolbar`.  This will make the toolbar 3x the normal height.
+
+    <core-toolbar class="tall">
+      <core-icon-button icon="menu"></core-icon-button>
+    </core-toolbar>
+    
+Apply `medium-tall` class to make the toolbar medium tall.  This will make the 
+toolbar 2x the normal height.
+
+    <core-toolbar class="medium-tall">
+      <core-icon-button icon="menu"></core-icon-button>
+    </core-toolbar>
+
+When taller, elements can pin to either the top (default), middle or bottom.
+
+    <core-toolbar class="tall">
+      <core-icon-button icon="menu"></core-icon-button>
+      <div class="middle indent">Middle Title</div>
+      <div class="bottom indent">Bottom Title</div>
+    </core-toolbar>
+    
+To make an element completely fit at the bottom of the toolbar, use `fit` along
+with `bottom`.
+
+    <core-toolbar class="tall">
+      <div id="progressBar" class="bottom fit"></div>
+    </core-toolbar>
+
+@group Polymer Core Elements
+@element core-toolbar
+@homepage github.io
+-->
+
+
+
+<polymer-element name="core-toolbar" assetpath="../components/core-toolbar/">
+<template>
+
+  <style>/*
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  /* technical */
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  /* size */
+  height: 64px;
+  /* typography */
+  font-size: 1.3em;
+  /* background */
+  background-color: #CFD8DC;
+}
+
+:host(.animate) {
+  /* transition */
+  transition: height 0.18s ease-in;
+}
+
+:host(.medium-tall) {
+  height: 128px;
+}
+
+:host(.tall) {
+  height: 192px;
+}
+
+.toolbar-tools {
+  position: relative;
+  height: 64px;
+  padding: 0 8px;
+  pointer-events: none;
+}
+
+/* narrow layout */
+:host(.narrow) {
+  height: 56px;
+}
+
+:host(.narrow.medium-tall) {
+  height: 112px;
+}
+
+:host(.narrow.tall) {
+  height: 168px;
+}
+
+:host(.narrow) .toolbar-tools {
+  height: 56px;
+  padding: 0;
+}
+
+/* middle bar */
+#middleBar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+}
+
+:host(.tall, .medium-tall) #middleBar {
+  -webkit-transform: translateY(100%);
+  transform: translateY(100%);
+}
+
+/* bottom bar */
+#bottomBar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* make elements (e.g. buttons) respond to mouse/touch events */
+polyfill-next-selector { content: '.toolbar-tools > *'; }
+::content > * {
+  pointer-events: auto;
+}
+
+/* elements spacing */
+polyfill-next-selector { content: '.toolbar-tools > *'; }
+::content > * {
+  margin: 0px 8px;
+}
+
+/* misc helpers */
+polyfill-next-selector { content: '.toolbar-tools > .fit'; }
+::content > .fit {
+  position: absolute;
+  top: auto;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  margin: 0;
+}
+
+polyfill-next-selector { content: ':host .indent'; }
+::content > .indent {
+  margin-left: 60px;
+}
+</style>
+
+  <div id="bottomBar" class="toolbar-tools" center="" horizontal="" layout="">
+    <content select=".bottom"></content>
+  </div>
+  
+  <div id="middleBar" class="toolbar-tools" center="" horizontal="" layout="">
+    <content select=".middle"></content>
+  </div>
+
+  <div id="topBar" class="toolbar-tools" center="" horizontal="" layout="">
+    <content></content>
+  </div>
+
+</template>
+<script>Polymer('core-toolbar');</script></polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+The `core-tooltip` element creates a hover tooltip centered for the content
+it contains. It can be positioned on the top|bottom|left|right of content using
+the `position` attribute.
+
+To include HTML in the tooltip, include the `tip` attribute on the relevant
+content.
+
+<b>Example</b>:
+
+    <core-tooltip label="I'm a tooltip">
+      <span>Hover over me.</span>
+    </core-tooltip>
+
+<b>Example</b> - positioning the tooltip to the right:
+
+    <core-tooltip label="I'm a tooltip to the right" position="right">
+      <polymer-ui-icon-button icon="drawer"></polymer-ui-icon-button>
+    </core-tooltip>
+
+<b>Example</b> - no arrow and showing by default:
+
+    <core-tooltip label="Tooltip with no arrow and always on" noarrow show>
+      <img src="image.jpg">
+    </core-tooltip>
+
+<b>Example</b> - rich tooltip using the `tip` attribute:
+
+    <core-tooltip>
+      <div>Example of a rich information tooltip</div>
+      <div tip>
+        <img src="profile.jpg">Foo <b>Bar</b> - <a href="#">@baz</a>
+      </div>
+    </core-tooltip>
+
+@group Polymer Core Elements
+@element core-tooltip
+@homepage http://polymer.github.io/core-tooltip
+-->
+
+
+
+<!-- TODO: would be nice to inherit from label to get .htmlFor, and .control,
+           but the latter is readonly. -->
+<!-- TODO: support off center arrows. -->
+<!-- TODO: detect mobile and apply the .large class, instead of manual
+           control. -->
+<!-- TODO: possibly reuse core-overlay. -->
+<polymer-element name="core-tooltip" attributes="noarrow position label show" tabindex="0" assetpath="../components/core-tooltip/">
+<template>
+
+  <style>/* Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt */
+
+:host {
+  box-sizing: border-box;
+  position: relative;
+  display: inline-block;
+}
+
+:host(:hover) .polymer-tooltip {
+  visibility: visible !important;
+}
+
+:host(:focus) .polymer-tooltip {
+  visibility: visible !important;
+}
+
+.polymer-tooltip:not(.show) {
+  visibility: hidden;
+}
+
+.polymer-tooltip {
+   pointer-events: none; 
+  position: absolute;
+  display: flex;
+  font-size: 10px;
+  font-family: sans-serif;
+  padding: 8px;
+  color: white;
+  background-color: rgba(0,0,0,0.8);
+  box-sizing: border-box;
+  border-radius: 3px; /* TODO: not in spec. */
+  white-space: nowrap;
+  line-height: 6px;
+  z-index: 1002; /* TODO: this is brittle. */
+}
+
+:host([large]) .polymer-tooltip {
+  line-height: 14px;
+  font-size: 14px;
+  padding: 16px;
+}
+
+.polymer-tooltip.noarrow::after {
+  display: none;
+}
+
+.polymer-tooltip::after {
+  position: absolute;
+  border: solid transparent;
+  content: '';
+  height: 0;
+  width: 0;
+  border-width: 4px;
+}
+
+.top {
+  margin-bottom: 10px; /* TODO: not specified in spec */
+  bottom: 100%;
+}
+
+.right {
+  margin-left: 10px; /* TODO: not specified in spec */
+  left: 100%;
+}
+
+.bottom {
+  top: 100%;
+  margin-top: 10px; /* TODO: not specified in spec */
+}
+
+.left {
+  margin-right: 10px; /* TODO: not specified in spec */
+  right: 100%;
+}
+
+.polymer-tooltip.bottom::after {
+  bottom: 100%;
+  left: calc(50% - 4px);
+  border-bottom-color: rgba(0,0,0,0.8);
+}
+
+.polymer-tooltip.left::after {
+  left: 100%;
+  top: calc(50% - 4px);
+  border-left-color: rgba(0,0,0,0.8);
+}
+
+.polymer-tooltip.top::after {
+  top: 100%;
+  left: calc(50% - 4px);
+  border-top-color: rgba(0,0,0,0.8);
+}
+
+.polymer-tooltip.right::after {
+  right: 100%;
+  top: calc(50% - 4px);
+  border-right-color: rgba(0,0,0,0.8);
+}
+</style>
+
+  <div id="tooltip" class="polymer-tooltip {{position}} {{ {noarrow: noarrow, show: show} | tokenList}}">
+    <content select="[tip]">{{label}}</content>
+  </div>
+
+  <content></content>
+
+</template>
+<script>
+
+  Polymer('core-tooltip', {
+
+    /**
+     * A simple string label for the tooltip to display. To display a rich
+     * that includes HTML, use the `tip` attribute on the content.
+     *
+     * @attribute label
+     * @type string
+     * @default null
+     */
+    label: null,
+
+    /**
+     * If true, the tooltip an arrow pointing towards the content.
+     *
+     * @attribute noarrow
+     * @type boolean
+     * @default false
+     */
+    noarrow: false,
+
+    /**
+     * If true, the tooltip displays by default.
+     *
+     * @attribute show
+     * @type boolean
+     * @default false
+     */
+    show: false,
+
+    /**
+     * Positions the tooltip to the top, right, bottom, left of its content.
+     *
+     * @attribute position
+     * @type string
+     * @default 'bottom'
+     */
+    position: 'bottom',
+
+    attached: function() {
+      this.setPosition();
+    },
+
+    labelChanged: function(oldVal, newVal) {
+      // Run if we're not after attached().
+      if (oldVal) {
+        this.setPosition();
+      }
+    },
+
+    setPosition: function() {
+      var controlWidth = this.clientWidth;
+      var controlHeight = this.clientHeight;
+
+      var styles = getComputedStyle(this.$.tooltip);
+      var toolTipWidth = parseFloat(styles.width);
+      var toolTipHeight = parseFloat(styles.height);
+
+      switch (this.position) {
+        case 'top':
+        case 'bottom':
+          this.$.tooltip.style.left = (controlWidth - toolTipWidth) / 2 + 'px';
+          break;
+        case 'left':
+        case 'right':
+          this.$.tooltip.style.top = (controlHeight - toolTipHeight) / 2 + 'px';
+          break;
+      }
+    }
+  });
+
+</script>
+</polymer-element>
+</div>
+    <div hidden><!--
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<!--
+`core-splitter` provides a split bar and dragging on the split bar
+will resize the sibling element.  Use its `direction` property to indicate
+which sibling element to be resized and the orientation.  Usually you would want
+to use `core-splitter` along with flex layout so that the other sibling
+element can be _flexible_.
+
+Example:
+
+    <div horizontal layout>
+      <div>left</div>
+      <core-splitter direction="left"></core-splitter>
+      <div flex>right</div>
+    </div>
+
+In the above example, dragging the splitter will resize the _left_ element.  And
+since the parent container is a flexbox and the _right_ element has
+`flex`, the _right_ element will be auto-resized.
+
+For horizontal splitter set `direction` to "up" or "down".
+
+Example:
+
+    <div vertical layout>
+      <div>top</div>
+      <core-splitter direction="up"></core-splitter>
+      <div flex>bottom</div>
+    </div>
+
+@group Polymer Core Elements
+@element core-splitter
+@homepage github.io
+-->
+
+
+
+<polymer-element name="core-splitter" attributes="direction locked minSize allowOverflow" on-trackstart="{{trackStart}}" on-track="{{track}}" on-down="{{preventSelection}}" assetpath="../components/core-splitter/">
+
+<template>
+
+  <style>/*
+Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: block;
+  width: 12px;
+  background: #efefef url(../components/core-splitter/handle.svg) no-repeat center;
+  box-shadow: inset 0 0 2px 1px #ccc;
+  cursor: col-resize;
+}
+
+:host(.horizontal) {
+  width: auto;
+  height: 12px;
+  cursor: row-resize;
+  background-image: url(../components/core-splitter/handle-h.svg);
+}
+
+:host(:hover, :active) {
+  background-color: #ddd;
+}
+</style>
+
+</template>
+<script>
+
+  Polymer('core-splitter', {
+
+    /**
+     * Possible values are "left", "right", "up" and "down".
+     *
+     * @attribute direction
+     * @type string
+     * @default 'left'
+     */
+    direction: 'left',
+
+    /**
+     * Minimum width to which the splitter target can be sized
+     *
+     * @attribute minSize
+     * @type number
+     * @default 0
+     */
+    minSize: 0,
+
+    /**
+     * Locks the split bar so it can't be dragged.
+     *
+     * @attribute locked
+     * @type boolean
+     * @default false
+     */
+    locked: false,
+
+    /**
+     * By default the parent and siblings of the splitter are set to overflow hidden. This helps
+     * avoid elements bleeding outside the splitter regions. Set this property to true to allow
+     * these elements to overflow.
+     *
+     * @attribute allowOverflow
+     * @type boolean
+     * @default false
+     */
+    allowOverflow: false,
+
+    ready: function() {
+      this.directionChanged();
+    },
+
+    domReady: function() {
+      if (!this.allowOverflow) {
+        this.parentNode.style.overflow = this.nextElementSibling.style.overflow =
+            this.previousElementSibling.style.overflow = 'hidden';
+      }
+    },
+
+    directionChanged: function() {
+      this.isNext = this.direction === 'right' || this.direction === 'down';
+      this.horizontal = this.direction === 'up' || this.direction === 'down';
+      this.update();
+    },
+
+    update: function() {
+      this.target = this.isNext ? this.nextElementSibling : this.previousElementSibling;
+      this.dimension = this.horizontal ? 'height' : 'width';
+      this.classList.toggle('horizontal', this.horizontal);
+    },
+
+    targetChanged: function(old) {
+      if (old) {
+        old.style[old.__splitterMinSize] = '';
+      }
+      var min = this.target.__splitterMinSize = this.horizontal ? 'minHeight' : 'minWidth';
+      this.target.style[min] = this.minSize + 'px';
+    },
+
+    trackStart: function() {
+      this.update();
+      this.size = parseInt(getComputedStyle(this.target)[this.dimension]);
+    },
+
+    track: function(e) {
+      if (this.locked) {
+        return;
+      }
+      var d = e[this.horizontal ? 'dy' : 'dx'];
+      this.target.style[this.dimension] =
+          this.size + (this.isNext ? -d : d) + 'px';
+    },
+
+    preventSelection: function(e) {
+      e.preventDefault();
+    }
+  });
+
+</script>
+</polymer-element></div>
+    
+    <style>
+      body, html {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        font-family: Roboto2, 'Helvetica Neue', Helvetica, Arial;
+        margin: 0;
+      }
+    </style>
+
+    <polymer-element name="ci-results" fit="" layout="" vertical="" assetpath="../">
+      <template>
+        <style>
+          iframe {
+            border: 0;
+          }
+          .tab {
+            background-color: #2ECC40;
+            max-width: 300px;
+          }
+          .tab > * {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            padding: 0 5px;
+            text-align: center;
+          }
+          .tab .result {
+            font-size: 0.em;
+          }
+          .tab.fail {
+            background-color: #FF4136;
+          }
+          .image {
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: top center;
+          }
+          .info {
+            width: 30%;
+            padding: 20px;
+          }
+          .info > * {
+            margin-bottom: 10px;
+          }
+          .tabs {
+            background-color: lightgray;
+          }
+          .toolbar {
+            background-color: lightgray;
+          }
+          .details {
+            font-size: 0.7em;
+          }
+        </style>
+        <firebase-element location="https://ci-runner.firebaseio.com/status/{{commitId}}" data="{{results}}" auto?="{{commit}}" on-data-change="{{resultsChanged}}"></firebase-element>
+        <core-toolbar class="toolbar">
+          <div>CI Results
+            <div class="details">{{org}} / {{repo}} <a href="https://github.com/{{org}}/{{repo}}/tree/{{commit}}">{{commit}}</a></div>
+          </div>
+        </core-toolbar>
+        <paper-tabs selected="{{selected}}" class="tabs">
+          <template repeat="{{resultsArray}}">
+            <paper-tab class="tab {{ {fail: !pass} | tokenList }}">
+              <core-tooltip label="{{platform}}">
+                <div>{{platform}}</div>
+              </core-tooltip>
+              <div class="result">{{pass ? &apos;Passed&apos; : &apos;Failed&apos;}}</div>
+            </paper-tab>
+          </template>
+        </paper-tabs>
+        <div flex="" layout="" horizontal="" hidden?="{{!resultsArray[selected]}}">
+          <div class="info">
+            <template repeat="{{resultsArray[selected].reports}}">
+              <p style="font-weight:bold;">{{name}}</p>
+              <em>Message</em>
+              <code><pre>{{message}}</pre></code>
+              <div hidden?="{{!stack}}">
+                <em>Stack</em>
+                <code><pre>{{stack}}</pre></code>
+              </div>
+              <hr>
+            </template>
+          </div>
+          <core-splitter direction="left"></core-splitter>
+          <div class="image" flex="" style="background-image:url({{resultsArray[selected].image}});"></div>
+        </div>
+      </template>
+      <script>
+        Polymer('ci-results',{
+          selected: 0,
+          getQueryVariable: function(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split('&');
+            for (var i = 0; i < vars.length; i++) {
+              var pair = vars[i].split('=');
+              if (decodeURIComponent(pair[0]) == variable) {
+                return decodeURIComponent(pair[1]);
+              }
+            }
+            console.log('Query variable %s not found', variable);
+          },
+          ready: function() {
+            this.commitId = this.getQueryVariable('commit');
+            var parts = this.commitId.split('|');
+            this.org = parts[0];
+            this.repo = parts[1];
+            this.commit = parts[2];
+          },
+          resultsChanged: function() {
+            var results = [];
+            for (var i in this.results) {
+              results.push(this.results[i]);
+            }
+            this.resultsArray = results;
+          }
+        });
+      </script>
+    </polymer-element>
+
+  </head>
+  <body>
+    <ci-results fit=""></ci-results>
+  </body>
+</html>

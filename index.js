@@ -6,10 +6,9 @@ var async = require('async');
 var path = require('path');
 var shelljs = require('shelljs');
 var request = require('request');
+var os = require('os');
 
 shelljs.rm('-rf', 'commits');
-
-var testsInProgress = {};
 
 var github = new GitHubApi({
   version: "3.0.0",
@@ -29,9 +28,7 @@ github.authenticate({
   token: GITHUB_OAUTH_TOKEN
 });
 
-fbChangeQueue.on('child_added', function(s) {
-  testCommit(s.val(), s.ref());
-});
+fbChangeQueue.on('child_added', onWebhookEventAdded);
 
 function exec(cmd, args, cwd, exitCB, dataCB, errCB) {
   var spawn = require('child_process').spawn;
@@ -65,11 +62,22 @@ function exec(cmd, args, cwd, exitCB, dataCB, errCB) {
   }
 }
 
+function onWebhookEventAdded(snapshot) {
+  snapshot.ref().transaction(function(event) {
+    if (event._activeWorker) return; // Abort.
+    event._activeWorker = os.hostname();
+    return event;
+  }, function(error, committed, snapshot) {
+    if (error || !committed) {
+      console.log(snapshot.name(), 'is already being processed by', snapshot.val()._activeWorker);
+    } else {
+      testCommit(snapshot.val(), snapshot.ref());
+    }
+  });
+}
+
 function testCommit(event, fbRef) {
   var commit = event.pull_request.head;
-  if (testsInProgress[commit.sha]) {
-    return;
-  }
   var user = event.repository.owner.login;
   var repoName = event.repository.name;
   var commitId = user + '|' + repoName + "|" + commit.sha;
@@ -81,7 +89,6 @@ function testCommit(event, fbRef) {
   var totalTests = 0;
   var passedTests = 0;
   var failedTests = 0;
-  testsInProgress[commit.sha] = true;
   async.series([
     function(next) {
       console.log('Setting status to "pending" for ' + commit.sha);
@@ -191,7 +198,6 @@ function testCommit(event, fbRef) {
     },
   ], function(err) {
     fbChangeStatus.child(commitId).child('pending').set(false);
-    testsInProgress[commit.sha] = false;
     shelljs.rm('-rf', repoPath);
     if (err) {
       console.error(err);

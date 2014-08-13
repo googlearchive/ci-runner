@@ -38,19 +38,19 @@ run_create() {
     --machine-type  $MACHINE_TYPE \
     --metadata \
       google-container-manifest="
-version: v1beta2
-containers:
-- name: $WORKER_PREFIX
-  image: $DOCKER_IMAGE
-  env:
-  - name: GITHUB_OAUTH_TOKEN
-    value: $GITHUB_OAUTH_TOKEN
-  - name: FIREBASE_APP
-    value: $FIREBASE_APP
-  - name: SAUCE_USERNAME
-    value: $SAUCE_USERNAME
-  - name: SAUCE_ACCESS_KEY
-    value: $SAUCE_ACCESS_KEY"
+        version: v1beta2
+        containers:
+        - name: $WORKER_PREFIX
+          image: $DOCKER_IMAGE
+          env:
+          - name: GITHUB_OAUTH_TOKEN
+            value: $GITHUB_OAUTH_TOKEN
+          - name: FIREBASE_APP
+            value: $FIREBASE_APP
+          - name: SAUCE_USERNAME
+            value: $SAUCE_USERNAME
+          - name: SAUCE_ACCESS_KEY
+            value: $SAUCE_ACCESS_KEY"
 }
 
 run_list() {

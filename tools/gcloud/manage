@@ -3,7 +3,7 @@
 set -e
 
 # Common settings; but feel free to override them if you like.
-DOCKER_IMAGE=nevir/polymer-ci
+DOCKER_IMAGE=polymerlabs/ci-worker
 MACHINE_IMAGE_NAME=container-vm-v20140731
 MACHINE_IMAGE_PROJECT=google-containers
 MACHINE_ZONE=us-central1-a

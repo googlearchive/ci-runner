@@ -8,6 +8,8 @@ var shelljs = require('shelljs');
 var request = require('request');
 var os = require('os');
 
+var Commit = require('./lib/commit');
+
 shelljs.rm('-rf', 'commits');
 
 var github = new GitHubApi({
@@ -19,9 +21,10 @@ var FIREBASE_APP = process.env.FIREBASE_APP;
 var GITHUB_OAUTH_TOKEN = process.env.GITHUB_OAUTH_TOKEN;
 var SAUCE_USERNAME = process.env.SAUCE_USERNAME;
 var SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
+var FIREBASE_ROOT = 'https://' + FIREBASE_APP + '.firebaseio.com';
 
-var fbChangeQueue = new Firebase('https://' + FIREBASE_APP + '.firebaseio.com/queue');
-var fbChangeStatus = new Firebase('https://' + FIREBASE_APP + '.firebaseio.com/status');
+var fbChangeQueue = new Firebase(FIREBASE_ROOT + '/queue');
+var fbChangeStatus = new Firebase(FIREBASE_ROOT + '/status');
 
 github.authenticate({
   type: 'oauth',
@@ -71,18 +74,39 @@ function onWebhookEventAdded(snapshot) {
     if (error || !committed) {
       console.log(snapshot.name(), 'is already being processed by', snapshot.val()._activeWorker);
     } else {
-      testCommit(snapshot.val(), snapshot.ref());
+      // TODO(nevir): Handle 'rollback' on failure.
+      processEvent(snapshot);
     }
   });
 }
 
-function testCommit(event, fbRef) {
-  var commit = event.pull_request.head;
-  var user = event.repository.owner.login;
-  var repoName = event.repository.name;
-  var commitId = user + '|' + repoName + "|" + commit.sha;
-  var repoPath = path.join('commits', user + '-' + repoName + "-" + commit.sha);
-  var statusUrl = 'http://polymerlabs.github.io/ci-runner/?firebase_app=' + FIREBASE_APP + '&commit=' + commitId;
+function processEvent(snapshot, callback) {
+  var event = snapshot.val();
+  var needsComment = true; // GitHub only shows statuses on pull requests.
+  var commit;
+
+  // https://developer.github.com/v3/activity/events/types/#pullrequestevent
+  if (event.pull_request) {
+    var head = event.pull_request.head;
+    commit = new Commit(head.user.login, head.repo.name, head.sha);
+    needsComment = false;
+  // https://developer.github.com/v3/activity/events/types/#pushevent
+  } else if (event.head_commit) {
+    commit = new Commit(event.repository.owner.name, event.repository.name, event.head_commit.id);
+  }
+
+  if (commit) {
+    testCommit(commit, needsComment, snapshot.ref());
+  } else {
+    console.log('unknown event type', event);
+    snapshot.remove(); // Not an error; we treat it as processed.
+  }
+}
+
+function testCommit(commit, needsComment, fbRef) {
+  console.log('testing', commit);
+  var repoPath = path.join('commits', commit.pathPart);
+  var statusUrl = 'http://polymerlabs.github.io/ci-runner/?firebase_app=' + FIREBASE_APP + '&commit=' + commit.key;
   var repo;
   var state;
   var statusMsg;
@@ -92,11 +116,11 @@ function testCommit(event, fbRef) {
   async.series([
     function(next) {
       console.log('Setting status to "pending" for ' + commit.sha);
-      fbChangeStatus.child(commitId).remove();
-      fbChangeStatus.child(commitId).child('pending').set(true);
+      fbChangeStatus.child(commit.key).remove();
+      fbChangeStatus.child(commit.key).child('pending').set(true);
       github.statuses.create({
-        user: user,
-        repo: repoName,
+        user: commit.user,
+        repo: commit.repo,
         sha: commit.sha,
         state: 'pending',
         description: 'Initializing tests...',
@@ -106,8 +130,8 @@ function testCommit(event, fbRef) {
       });
     },
     function(next) {
-      console.log('Clone:', commit.repo.clone_url);
-      git.clone(commit.repo.clone_url, repoPath, function(err, _repo) {
+      console.log('Clone:', commit.repoUrl);
+      git.clone(commit.repoUrl, repoPath, function(err, _repo) {
         repo = _repo;
         next(err);
       });
@@ -126,8 +150,8 @@ function testCommit(event, fbRef) {
         console.log('Completed npm install with code ' + code);
         if (code === 0) {
           github.statuses.create({
-            user: user,
-            repo: repoName,
+            user: commit.user,
+            repo: commit.repo,
             sha: commit.sha,
             state: 'pending',
             description: 'Starting tests...',
@@ -147,7 +171,7 @@ function testCommit(event, fbRef) {
             var match;
             if (match = data.match('(\\d*) tests started')) {
               totalTests = parseInt(match[1]);
-              fbChangeStatus.child(commitId).child('total').set(totalTests);
+              fbChangeStatus.child(commit.key).child('total').set(totalTests);
             }
             if (match = data.match('Platform: (.*)')) {
               lastStatus.platform = match[1];
@@ -156,21 +180,21 @@ function testCommit(event, fbRef) {
               lastStatus.passed = (match[1] == 'true');
               if (lastStatus.passed) {
                 passedTests++;
-                fbChangeStatus.child(commitId).child('passed').set(passedTests);
+                fbChangeStatus.child(commit.key).child('passed').set(passedTests);
               } else {
                 failedTests++;
-                fbChangeStatus.child(commitId).child('failed').set(failedTests);
+                fbChangeStatus.child(commit.key).child('failed').set(failedTests);
               }
             }
             if (match = data.match('Url (.*)')) {
               lastStatus.url = match[1];
               console.log(lastStatus);
-              var fbStatus = fbChangeStatus.child(commitId).child('platforms').push(lastStatus);
+              var fbStatus = fbChangeStatus.child(commit.key).child('platforms').push(lastStatus);
               var jobId = (match = lastStatus.url.match('jobs/(.*)')) && match[1];
               updateWithLog(fbStatus, jobId);
               github.statuses.create({
-                user: user,
-                repo: repoName,
+                user: commit.user,
+                repo: commit.repo,
                 sha: commit.sha,
                 state: 'pending',
                 description: 'Testing platforms: ' + passedTests + ' passed, ' + failedTests + ' failed, ' + (totalTests - passedTests - failedTests) + ' remaining...',
@@ -186,8 +210,8 @@ function testCommit(event, fbRef) {
     function(next) {
       console.log('Setting status to ' + state + ' for ' + commit.sha);
       github.statuses.create({
-        user: user,
-        repo: repoName,
+        user: commit.user,
+        repo: commit.repo,
         sha: commit.sha,
         state: state,
         description: statusMsg,
@@ -197,18 +221,27 @@ function testCommit(event, fbRef) {
       });
     },
   ], function(err) {
-    fbChangeStatus.child(commitId).child('pending').set(false);
+    fbChangeStatus.child(commit.key).child('pending').set(false);
     shelljs.rm('-rf', repoPath);
     if (err) {
       console.error(err);
-      fbChangeStatus.child(commitId).child('error').set(err.toString());
+      fbChangeStatus.child(commit.key).child('error').set(err.toString());
       github.statuses.create({
-        user: user,
-        repo: repoName,
+        user: commit.user,
+        repo: commit.repo,
         sha: commit.sha,
         state: 'error',
         description: 'Error occurred: ' + err
       });
+      if (needsComment) {
+        github.repos.createCommitComment({
+          user: commit.user,
+          repo: commit.repo,
+          sha: commit.sha,
+          commit_id: commit.sha, // Err what?
+          body: '[Test Failure](' + statusUrl + '):\n---\n' + err,
+        });
+      }
     } else {
       fbRef.remove();
     }

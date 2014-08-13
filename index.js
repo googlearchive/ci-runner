@@ -82,26 +82,28 @@ function onWebhookEventAdded(snapshot) {
 
 function processEvent(snapshot, callback) {
   var event = snapshot.val();
+  var needsComment = true; // GitHub only shows statuses on pull requests.
   var commit;
 
   // https://developer.github.com/v3/activity/events/types/#pullrequestevent
   if (event.pull_request) {
     var head = event.pull_request.head;
     commit = new Commit(head.user.login, head.repo.name, head.sha);
+    needsComment = false;
   // https://developer.github.com/v3/activity/events/types/#pushevent
   } else if (event.head_commit) {
     commit = new Commit(event.repository.owner.name, event.repository.name, event.head_commit.id);
   }
 
   if (commit) {
-    testCommit(commit, event, snapshot.ref());
+    testCommit(commit, needsComment, snapshot.ref());
   } else {
     console.log('unknown event type', event);
     snapshot.remove(); // Not an error; we treat it as processed.
   }
 }
 
-function testCommit(commit, event, fbRef) {
+function testCommit(commit, needsComment, fbRef) {
   console.log('testing', commit);
   var repoPath = path.join('commits', commit.pathPart);
   var statusUrl = 'http://polymerlabs.github.io/ci-runner/?firebase_app=' + FIREBASE_APP + '&commit=' + commit.key;
@@ -231,6 +233,15 @@ function testCommit(commit, event, fbRef) {
         state: 'error',
         description: 'Error occurred: ' + err
       });
+      if (needsComment) {
+        github.repos.createCommitComment({
+          user: commit.user,
+          repo: commit.repo,
+          sha: commit.sha,
+          commit_id: commit.sha, // Err what?
+          body: '[Test Failure](' + statusUrl + '):\n---\n' + err,
+        });
+      }
     } else {
       fbRef.remove();
     }

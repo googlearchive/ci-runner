@@ -33,7 +33,7 @@ that you can use; and we provide configuration to make that easy.
 ### Google Compute Engine
 
 You can make use of the [`tools/gcloud/manage`](tools/gcloud/manage) script.
-You will need to create a configuration file and place it somewhere handy:
+You will need to create a `.polymer-ci-runner.sh` and place it somewhere handy:
 
 ```sh
 # The Google Compute Engine project name.
@@ -48,6 +48,9 @@ SAUCE_ACCESS_KEY=abcdef01-abcd-abcd-abcd-abcdef012345
 # The firebase app where webhook jobs should be stored.
 FIREBASE_APP=my-firebase-app
 ```
+
+You can then run `manage` from any directory that contains that config file
+directly, or up its path.
 
 
 ### Heroku

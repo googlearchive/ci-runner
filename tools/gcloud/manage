@@ -3,14 +3,14 @@
 set -e
 
 # Common settings; but feel free to override them if you like.
-DOCKER_IMAGE=polymerlabs/ci-worker
+DOCKER_IMAGE=polymerlabs/ci-runner
 MACHINE_IMAGE_NAME=container-vm-v20140731
 MACHINE_IMAGE_PROJECT=google-containers
 MACHINE_ZONE=us-central1-a
 MACHINE_TYPE=f1-micro
-WORKER_PREFIX=ci-worker
+WORKER_PREFIX=ci-runner
 
-CONFIG_FILE=.polymer-ci-worker.sh
+CONFIG_FILE=.polymer-ci-runner.sh
 
 main() {
   # Margins are nice.
@@ -73,7 +73,7 @@ run_help() {
   read -r -d '' text <<end_help
 usage: $(c_green manage) $(c_cyan COMMAND ...)
 
-Requires that you define a .polymer-ci-worker.sh somewhere up your path that
+Requires that you define a .polymer-ci-runner.sh somewhere up your path that
 defines environment variables that configure this tool.
 
 Commands:

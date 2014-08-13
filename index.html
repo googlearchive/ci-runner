@@ -13,7 +13,7 @@
     <link rel="import" href="components/core-toolbar/core-toolbar.html">
     <link rel="import" href="components/core-tooltip/core-tooltip.html">
     <link rel="import" href="components/core-splitter/core-splitter.html">
-    
+
     <style>
       body, html {
         height: 100%;
@@ -70,9 +70,9 @@
             font-size: 0.7em;
           }
         </style>
-        <firebase-element location="https://ci-runner.firebaseio.com/status/{{commitId}}/platforms" 
+        <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{commitId}}/platforms"
           data="{{results}}" auto?="{{commit}}" on-data-change="{{resultsChanged}}"></firebase-element>
-        <firebase-element location="https://ci-runner.firebaseio.com/status/{{commitId}}" 
+        <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{commitId}}"
           data="{{status}}" auto?="{{commit}}" on-data-change="{{resultsChanged}}"></firebase-element>
         <core-toolbar class="toolbar">
           <div flex>CI Results
@@ -123,6 +123,7 @@
             console.log('Query variable %s not found', variable);
           },
           ready: function() {
+            this.firebaseApp = this.getQueryVariable('firebase_app');
             this.commitId = this.getQueryVariable('commit');
             var parts = this.commitId.split('|');
             this.org = parts[0];

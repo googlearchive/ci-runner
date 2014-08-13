@@ -10,17 +10,19 @@ var request = require('request');
 shelljs.rm('-rf', 'commits');
 
 var testsInProgress = {};
-var fbChangeQueue = new Firebase('https://ci-runner.firebaseio.com/queue');
-var fbChangeStatus = new Firebase('https://ci-runner.firebaseio.com/status');
 
 var github = new GitHubApi({
   version: "3.0.0",
   timeout: 5000
 });
 
+var FIREBASE_APP = process.env.FIREBASE_APP;
 var GITHUB_OAUTH_TOKEN = process.env.GITHUB_OAUTH_TOKEN;
 var SAUCE_USERNAME = process.env.SAUCE_USERNAME;
 var SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
+
+var fbChangeQueue = new Firebase('https://' + FIREBASE_APP + '.firebaseio.com/queue');
+var fbChangeStatus = new Firebase('https://' + FIREBASE_APP + '.firebaseio.com/status');
 
 github.authenticate({
   type: 'oauth',
@@ -72,7 +74,7 @@ function testCommit(event, fbRef) {
   var repoName = event.repository.name;
   var commitId = user + '|' + repoName + "|" + commit.sha;
   var repoPath = path.join('commits', user + '-' + repoName + "-" + commit.sha);
-  var statusUrl = 'http://kevinpschaaf.github.io/ci-runner/?commit=' + commitId;
+  var statusUrl = 'http://polymerlabs.github.io/ci-runner/?firebase_app=' + FIREBASE_APP + '&commit=' + commitId;
   var repo;
   var state;
   var statusMsg;

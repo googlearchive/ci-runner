@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Common settings; but feel free to override them if you like.
+DOCKER_IMAGE=nevir/polymer-ci
+MACHINE_IMAGE_NAME=container-vm-v20140731
+MACHINE_IMAGE_PROJECT=google-containers
+MACHINE_ZONE=us-central1-a
+MACHINE_TYPE=f1-micro
+WORKER_PREFIX=ci-worker
+
+CONFIG_FILE=.polymer-ci-worker.sh
+
+main() {
+  # Margins are nice.
+  echo
+  trap echo EXIT
+
+  command=${1:-help}
+  if [[ ! $(declare -Ff run_$command) ]]; then
+    fail "$command is not a known command"
+  fi
+
+  load_config
+  validate_config
+  run_$command "${@:2}"
+}
+
+# Commands
+
+run_create() {
+  exec_gcloud compute instances create $WORKER_PREFIX-$(uuid) \
+    --quiet \
+    --image-project $MACHINE_IMAGE_PROJECT \
+    --image         $MACHINE_IMAGE_NAME \
+    --zone          $MACHINE_ZONE \
+    --machine-type  $MACHINE_TYPE \
+    --metadata \
+      google-container-manifest="
+version: v1beta2
+containers:
+- name: $WORKER_PREFIX
+  image: $DOCKER_IMAGE
+  env:
+  - name: GITHUB_OAUTH_TOKEN
+    value: $GITHUB_OAUTH_TOKEN
+  - name: FIREBASE_APP
+    value: $FIREBASE_APP
+  - name: SAUCE_USERNAME
+    value: $SAUCE_USERNAME
+  - name: SAUCE_ACCESS_KEY
+    value: $SAUCE_ACCESS_KEY"
+}
+
+run_list() {
+  exec_gcloud compute instances list --regexp "$WORKER_PREFIX-.*"
+}
+
+run_delete() {
+  exec_gcloud compute instances delete --quiet --zone $MACHINE_ZONE $(args_to_instances "$@")
+}
+
+run_update() {
+  for instance in $(args_to_instances "$@"); do
+    run_create
+    run_delete $instance
+  done
+}
+
+run_help() {
+  set +e # read returns nonzero exit status.
+  read -r -d '' text <<end_help
+usage: $(c_green manage) $(c_cyan COMMAND ...)
+
+Requires that you define a .polymer-ci-worker.sh somewhere up your path that
+defines environment variables that configure this tool.
+
+Commands:
+
+  $(c_cyan create)
+    Adds and starts a new instance to the worker pool.
+
+  $(c_cyan delete) $(c_yellow INSTANCEID ...)
+    Removes and shuts down the given instances, or $(c_yellow --all).
+
+  $(c_cyan update) $(c_yellow INSTANCEID ...)
+    Updates all running instances, or $(c_yellow --all).
+
+  $(c_cyan list)
+    Lists all instances
+end_help
+  set -e
+  echo -e "$text"
+
+  exit 1
+}
+
+# Utility
+
+load_config() {
+  if [[ -e "$CONFIG_FILE" ]]; then
+    source "$CONFIG_FILE"
+  else
+    cd ..
+    if [[ "$PWD" == '/' ]]; then
+      fail "Unable to find $CONFIG_FILE anywhere up the path."
+    else
+      load_config
+    fi
+  fi
+}
+
+validate_config() {
+  missing=()
+
+  for var in GCLOUD_PROJECT GITHUB_OAUTH_TOKEN SAUCE_USERNAME SAUCE_ACCESS_KEY FIREBASE_APP; do
+    eval value=\$$var
+    if [[ ! "$value" ]]; then
+      missing+=($var)
+    fi
+  done
+
+  if [[ ${#missing[@]} -ne 0 ]]; then
+    fail "Missing values from $CONFIG_FILE: ${missing[@]}"
+  fi
+}
+
+uuid() {
+  uuid=`uuidgen | awk '{ print tolower($1) }'`
+  echo ${uuid:0:8}
+}
+
+exec_gcloud() {
+  args=(gcloud --project "$GCLOUD_PROJECT" "$@")
+  echo "> ${args[@]}"
+  echo
+  "${args[@]}"
+}
+
+instances() {
+  gcloud compute instances list --project $GCLOUD_PROJECT | grep -E "^$WORKER_PREFIX-\w+" -o0
+}
+
+args_to_instances() {
+  if [[ $1 == "--all" ]]; then
+    echo "$(instances)"
+  else
+    echo "$@"
+  fi
+}
+
+# Formatting
+
+c_red() {
+  echo "\033[0;31m$@\033[0m"
+}
+
+c_green() {
+  echo "\033[0;32m$@\033[0m"
+}
+
+c_yellow() {
+  echo "\033[0;33m$@\033[0m"
+}
+
+c_cyan() {
+  echo "\033[0;36m$@\033[0m"
+}
+
+fail() {
+  echo -e $(c_red "$@")
+  echo
+  run_help
+  exit 1
+}
+
+main "$@"

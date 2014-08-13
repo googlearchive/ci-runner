@@ -9,7 +9,7 @@ module.exports = function vulcanize(grunt) {
           strip:  true,
         },
         files: {
-          'gh-pages/index.html': 'index.html',
+          'gh-pages/index.html': 'client/index.html',
         },
       },
     },

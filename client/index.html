@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <script src="components/platform/platform.js"></script>
+    <link rel="import" href="elements/commit-status/commit-status.html">
+    <link rel="import" href="elements/more-param/more-param.html">
+
+    <style>
+      body, html {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        font-family: Roboto2, 'Helvetica Neue', Helvetica, Arial;
+      }
+    </style>
+  </head>
+  <body unresolved>
+    <template is="auto-binding">
+      <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
+      <more-param key="commitKey" value="{{commitKey}}"></more-param>
+      <commit-status firebaseApp="{{firebaseApp}}" commitKey="{{commitKey}}" fit></commit-status>
+    </template>
+  </body>
+</html>

@@ -19,9 +19,10 @@ var FIREBASE_APP = process.env.FIREBASE_APP;
 var GITHUB_OAUTH_TOKEN = process.env.GITHUB_OAUTH_TOKEN;
 var SAUCE_USERNAME = process.env.SAUCE_USERNAME;
 var SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
+var FIREBASE_ROOT = 'https://' + FIREBASE_APP + '.firebaseio.com';
 
-var fbChangeQueue = new Firebase('https://' + FIREBASE_APP + '.firebaseio.com/queue');
-var fbChangeStatus = new Firebase('https://' + FIREBASE_APP + '.firebaseio.com/status');
+var fbChangeQueue = new Firebase(FIREBASE_ROOT + '/queue');
+var fbChangeStatus = new Firebase(FIREBASE_ROOT + '/status');
 
 github.authenticate({
   type: 'oauth',

@@ -4,8 +4,9 @@ module.exports = function vulcanize(grunt) {
     vulcanize: {
       default: {
         options: {
-          csp: true,
-          strip: true,
+          csp:    true,
+          inline: true,
+          strip:  true,
         },
         files: {
           'gh-pages/index.html': 'index.html',

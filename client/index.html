@@ -7,6 +7,7 @@
 
     <script src="components/platform/platform.js"></script>
     <link rel="import" href="elements/commit-status/commit-status.html">
+    <link rel="import" href="elements/more-param/more-param.html">
 
     <style>
       body, html {
@@ -15,11 +16,14 @@
       }
       body {
         font-family: Roboto2, 'Helvetica Neue', Helvetica, Arial;
-        margin: 0;
       }
     </style>
   </head>
-  <body>
-    <commit-status fit></commit-status>
+  <body unresolved>
+    <template is="auto-binding">
+      <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
+      <more-param key="commitKey" value="{{commitKey}}"></more-param>
+      <commit-status firebaseApp="{{firebaseApp}}" commitKey="{{commitKey}}" fit></commit-status>
+    </template>
   </body>
 </html>

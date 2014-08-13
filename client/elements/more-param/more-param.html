@@ -1,0 +1,40 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+
+<polymer-element name="more-param" attributes="key value default">
+  <script>
+    Polymer('more-param', {
+      ready: function() {
+        this._readValue();
+      },
+
+      _readValue: function() {
+        var parts = this._getPathParts();
+        var value;
+        if (parts[this.key]) {
+          if (parts[this.key].length > 1) {
+            console.warn('GET param', this.key, 'has multiple values; using the first');
+          }
+          value = parts[this.key][0];
+        }
+
+        this.value = typeof value === 'string' ? value : this.default;
+        console.log('_readValue', this.key, this.value);
+      },
+
+      _getPathParts: function() {
+        var parts = {};
+        window.location.search.substr(1).split('&').forEach(function(part) {
+          var pair  = part.split('=');
+          var key   = decodeURIComponent(pair[0]);
+          var value = decodeURIComponent(pair[1]);
+          if (!parts[key]) {
+            parts[key] = [];
+          }
+          parts[key].push(value);
+        });
+
+        return parts;
+      }
+    });
+  </script>
+</polymer-element>

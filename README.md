@@ -26,8 +26,8 @@ Running Locally
 Spinning Up Your Own Workers
 ----------------------------
 
-The CI runner is intended to be run as a persistent server; and we provide
-configuration to make that easy.
+The CI runner is intended to be run as a persistent server. The worker is published as a [Docker image](https://registry.hub.docker.com/u/polymerlabs/ci-runner/)
+that you can use; and we provide configuration to make that easy.
 
 
 ### Google Compute Engine

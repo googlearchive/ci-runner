@@ -1,4 +1,3 @@
-
 var Firebase = require('firebase');
 var git = require('gift');
 var GitHubApi = require('github');
@@ -9,6 +8,8 @@ var request = require('request');
 var os = require('os');
 
 var Commit = require('./lib/commit');
+var exec   = require('./lib/exec');
+var Log    = require('./lib/log');
 
 shelljs.rm('-rf', 'commits');
 
@@ -32,38 +33,6 @@ github.authenticate({
 });
 
 fbChangeQueue.on('child_added', onWebhookEventAdded);
-
-function exec(cmd, args, cwd, exitCB, dataCB, errCB) {
-  var spawn = require('child_process').spawn;
-  var child = spawn(cmd, args, {cwd: cwd});
-  var resp = '';
-  if (dataCB) {
-    child.stdout.on('data', function (buffer) {
-      if (dataCB === true) {
-        console.log(buffer.toString());
-      } else {
-        dataCB(buffer.toString());
-      }
-    });
-  }
-  if (errCB) {
-    child.stderr.on('data', function (buffer) {
-      if (errCB === true) {
-        console.error(buffer.toString());
-      } else {
-        errCB(buffer.toString());
-      }
-    });
-  }
-  if (exitCB) {
-    child.on('exit', function(code, signal) {
-      exitCB(code);
-    });
-    child.on('error', function() {
-      exitCB(-1);
-    });
-  }
-}
 
 function onWebhookEventAdded(snapshot) {
   snapshot.ref().transaction(function(event) {
@@ -104,7 +73,11 @@ function processEvent(snapshot, callback) {
 }
 
 function testCommit(commit, needsComment, fbRef) {
-  console.log('testing', commit);
+  var statusRef = fbChangeStatus.child(commit.key);
+  statusRef.remove(); // Clean up prior state just in case.
+  var log = new Log(process.stdout, commit, statusRef.child('log'));
+  log.info('Starting test run');
+
   var repoPath = path.join('commits', commit.pathPart);
   var statusUrl = 'http://polymerlabs.github.io/ci-runner/?firebase_app=' + FIREBASE_APP + '&commit=' + commit.key;
   var repo;
@@ -115,9 +88,9 @@ function testCommit(commit, needsComment, fbRef) {
   var failedTests = 0;
   async.series([
     function(next) {
-      console.log('Setting status to "pending" for ' + commit.sha);
-      fbChangeStatus.child(commit.key).remove();
-      fbChangeStatus.child(commit.key).child('pending').set(true);
+      log.group('Fetching');
+      log.info('Setting status to "pending"');
+      statusRef.child('pending').set(true);
       github.statuses.create({
         user: commit.user,
         repo: commit.repo,
@@ -130,25 +103,24 @@ function testCommit(commit, needsComment, fbRef) {
       });
     },
     function(next) {
-      console.log('Clone:', commit.repoUrl);
+      log.info('Cloning', commit.repoUrl);
       git.clone(commit.repoUrl, repoPath, function(err, _repo) {
         repo = _repo;
         next(err);
       });
     },
     function(next) {
-      console.log('Checkout:', commit.sha);
+      log.info('Checking out', commit.sha);
       repo.checkout(commit.sha, function(err) {
+        log.groupEnd();
         next(err);
       });
     },
     function(next) {
-      console.log('Starting test on ' + commit.sha);
+      log.group('Testing');
       var lastStatus = {};
-      console.log('Starting npm install');
-      exec('npm', ['install'], repoPath, function(code) {
-        console.log('Completed npm install with code ' + code);
-        if (code === 0) {
+      exec(log, 'npm', ['install'], repoPath, function(error) {
+        if (!error) {
           github.statuses.create({
             user: commit.user,
             repo: commit.repo,
@@ -157,21 +129,20 @@ function testCommit(commit, needsComment, fbRef) {
             description: 'Starting tests...',
             target_url: statusUrl
           });
-          exec('grunt', [], repoPath, function(code) {
-            console.log('Completed grunt with code ' + code);
-            if (code === 0) {
-              state = 'success';
-              statusMsg = passedTests + '/' + totalTests + ' platforms passed.';
-            } else {
+          exec(log, 'grunt', [], repoPath, function(error) {
+            if (error) {
               state = 'failure';
               statusMsg = failedTests + '/' + totalTests + ' platforms failed.';
+            } else {
+              state = 'success';
+              statusMsg = passedTests + '/' + totalTests + ' platforms passed.';
             }
             next();
           }, function(data) {
             var match;
             if (match = data.match('(\\d*) tests started')) {
               totalTests = parseInt(match[1]);
-              fbChangeStatus.child(commit.key).child('total').set(totalTests);
+              statusRef.child('total').set(totalTests);
             }
             if (match = data.match('Platform: (.*)')) {
               lastStatus.platform = match[1];
@@ -180,18 +151,18 @@ function testCommit(commit, needsComment, fbRef) {
               lastStatus.passed = (match[1] == 'true');
               if (lastStatus.passed) {
                 passedTests++;
-                fbChangeStatus.child(commit.key).child('passed').set(passedTests);
+                statusRef.child('passed').set(passedTests);
               } else {
                 failedTests++;
-                fbChangeStatus.child(commit.key).child('failed').set(failedTests);
+                statusRef.child('failed').set(failedTests);
               }
             }
             if (match = data.match('Url (.*)')) {
               lastStatus.url = match[1];
-              console.log(lastStatus);
-              var fbStatus = fbChangeStatus.child(commit.key).child('platforms').push(lastStatus);
+              log.info(lastStatus);
+              var fbStatus = statusRef.child('platforms').push(lastStatus);
               var jobId = (match = lastStatus.url.match('jobs/(.*)')) && match[1];
-              updateWithLog(fbStatus, jobId);
+              updateWithLog(log, fbStatus, jobId);
               github.statuses.create({
                 user: commit.user,
                 repo: commit.repo,
@@ -208,7 +179,7 @@ function testCommit(commit, needsComment, fbRef) {
       });
     },
     function(next) {
-      console.log('Setting status to ' + state + ' for ' + commit.sha);
+      log.info('Setting status to ' + state + ' for ' + commit.sha);
       github.statuses.create({
         user: commit.user,
         repo: commit.repo,
@@ -221,11 +192,11 @@ function testCommit(commit, needsComment, fbRef) {
       });
     },
   ], function(err) {
-    fbChangeStatus.child(commit.key).child('pending').set(false);
+    statusRef.child('pending').set(false);
     shelljs.rm('-rf', repoPath);
     if (err) {
-      console.error(err);
-      fbChangeStatus.child(commit.key).child('error').set(err.toString());
+      log.error(err);
+      statusRef.child('error').set(err.toString());
       github.statuses.create({
         user: commit.user,
         repo: commit.repo,
@@ -252,35 +223,35 @@ function urlForSauceResource(resource) {
   return 'https://' + SAUCE_USERNAME + ':' + SAUCE_ACCESS_KEY + '@saucelabs.com/rest/v1/' + SAUCE_USERNAME + resource;
 }
 
-function updateWithLog(fbStatus, jobId) {
+function updateWithLog(log, fbStatus, jobId) {
   var url = urlForSauceResource('/jobs/' + jobId + '/assets/log.json');
   request.get(url, function(err, resp, body) {
     if (!err && resp.statusCode == 200) {
-      var log;
+      var payload;
       try {
-        log = JSON.parse(body);
+        payload = JSON.parse(body);
       } catch (e) {
-        console.error('Invalid log JSON: ' + url, e);
-        console.error(body);
+        log.error('Invalid log JSON: ' + url, e);
+        log.error(body);
         return;
       }
-      console.log('Storing log for ' + jobId);
+      log.info('Storing log for ' + jobId);
       fbStatus.child('log').set(body);
       for (var i=0; i<log.length; i++) {
-        var s = log[i];
+        var s = payload[i];
         if (s.result && s.result.reports) {
           fbStatus.child('reports').set(s.result.reports);
           if (s.screenshot) {
             var n = ('0000' + s.screenshot).slice(-4);
             url = urlForSauceResource('/jobs/' + jobId + '/assets/' + n + 'screenshot.png');
-            console.log('Retrieving image for ' + jobId);
+            log.info('Retrieving image for ' + jobId);
             request.get({url:url, encoding:null}, function(err, resp, body) {
               if (!err && resp.statusCode == 200) {
                 var data = "data:image/png;base64," + new Buffer(body).toString('base64');
-                console.log('Storing image for ' + jobId);
+                log.info('Storing image for ' + jobId);
                 fbStatus.child('image').set(data);
               } else {
-                console.error('Error retrieving image: ' + url + ': ' + err);
+                log.error('Error retrieving image: ' + url + ': ' + err);
               }
             });
           }
@@ -288,7 +259,7 @@ function updateWithLog(fbStatus, jobId) {
         }
       }
     } else {
-      console.error('Error retrieving log: ' + url + ': ' + err);
+      log.error('Error retrieving log: ' + url + ': ' + err);
     }
   });
 }

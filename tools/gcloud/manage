@@ -136,6 +136,7 @@ exec_gcloud() {
   echo "> ${args[@]}"
   echo
   "${args[@]}"
+  echo
 }
 
 instances() {

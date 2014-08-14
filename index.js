@@ -6,6 +6,7 @@ var path = require('path');
 var shelljs = require('shelljs');
 var request = require('request');
 var os = require('os');
+var tmp = require('tmp');
 
 var Commit = require('./lib/commit');
 var exec   = require('./lib/exec');
@@ -51,24 +52,35 @@ function onWebhookEventAdded(snapshot) {
 
 function processEvent(snapshot, callback) {
   var event = snapshot.val();
-  var needsComment = true; // GitHub only shows statuses on pull requests.
-  var commit;
+  var commit, needsComment;
 
   // https://developer.github.com/v3/activity/events/types/#pullrequestevent
   if (event.pull_request) {
     var head = event.pull_request.head;
     commit = new Commit(head.user.login, head.repo.name, head.sha);
     needsComment = false;
+
   // https://developer.github.com/v3/activity/events/types/#pushevent
   } else if (event.head_commit) {
-    commit = new Commit(event.repository.owner.name, event.repository.name, event.head_commit.id);
+    // Only for master so that we avoid double-testing commits to pull request
+    // branches; and we assume that other branches are less critical.
+    //
+    // TODO(nevir): Branches should be configurable.
+    if (event.ref === 'refs/heads/master') {
+      var repo = event.repository;
+      commit = new Commit(repo.owner.name, repo.name, event.head_commit.id);
+      needsComment = true;
+    }
+
+  } else {
+    console.log('unknown event type', event);
+    return;
   }
 
   if (commit) {
     testCommit(commit, needsComment, snapshot.ref());
   } else {
-    console.log('unknown event type', event);
-    snapshot.remove(); // Not an error; we treat it as processed.
+    snapshot.ref().remove(); // Not an error; we treat it as processed.
   }
 }
 
@@ -78,7 +90,7 @@ function testCommit(commit, needsComment, fbRef) {
   var log = new Log(process.stdout, commit, statusRef.child('log'));
   log.info('Starting test run');
 
-  var repoPath = path.join('commits', commit.pathPart);
+  var repoPath;
   var statusUrl = 'http://polymerlabs.github.io/ci-runner/?firebase_app=' + FIREBASE_APP + '&commitKey=' + commit.key;
   var repo;
   var state;
@@ -87,6 +99,14 @@ function testCommit(commit, needsComment, fbRef) {
   var passedTests = 0;
   var failedTests = 0;
   async.series([
+    function(next) {
+      tmp.dir(function(err, path) {
+        if (err) return next(err);
+        log.info('Working within', path);
+        repoPath = path;
+        next();
+      });
+    },
     function(next) {
       log.group('Fetching');
       log.info('Setting status to "pending"');

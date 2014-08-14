@@ -12,7 +12,8 @@
     "github": "^0.2.1",
     "request": "^2.40.0",
     "shelljs": "^0.3.0",
-    "sprintf-js": "0.0.7"
+    "sprintf-js": "0.0.7",
+    "tmp": "0.0.24"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

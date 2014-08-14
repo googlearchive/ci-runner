@@ -6,24 +6,70 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     <script src="components/platform/platform.js"></script>
+    <link rel="import" href="components/paper-theme-experiment/paper-theme.html">
+
+    <link rel="import" href="components/core-scaffold/core-scaffold.html">
     <link rel="import" href="elements/commit-status/commit-status.html">
+    <link rel="import" href="elements/pending-commits/pending-commits.html">
     <link rel="import" href="elements/more-param/more-param.html">
+    <link rel="import" href="elements/more-route/more-route.html">
+
+    <paper-theme primaryColor="#3f51b5" accentColor="#ff4081"></paper-theme>
 
     <style>
       body, html {
         height: 100%;
         margin: 0;
       }
-      body {
-        font-family: Roboto2, 'Helvetica Neue', Helvetica, Arial;
+
+      /*
+        Ideally, we'd just filter the binding: {{params.sha | substr(0, 8)}},
+        but that appears to be broken. (`input` is undefined).
+
+        TODO(nevir): Figure out why.
+       */
+      [tool] {
+        font-size: 0.7em;
+      }
+
+      [tool] a {
+        color: white;
+        text-decoration: none;
+      }
+
+      [tool] .user img {
+        display: inline-block;
+        height: 28px;
+        vertical-align: middle;
+        width: 28px;
       }
     </style>
   </head>
   <body unresolved>
     <template is="auto-binding">
       <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
-      <more-param key="commitKey" value="{{commitKey}}"></more-param>
-      <commit-status firebaseApp="{{firebaseApp}}" commitKey="{{commitKey}}" fit></commit-status>
+      <more-route route=":user/:repo/:sha" params="{{params}}"></more-route>
+
+      <core-scaffold responsiveWidth="800px">
+        <div tool>
+          <span class="user">
+            <img src="https://avatars.githubusercontent.com/{{params.user}}?size=56">
+            <a href="https://github.com/{{params.user}}">{{params.user}}</a>
+          </span>
+          /
+          <a href="https://github.com/{{params.user}}/{{params.repo}}" class="repo">{{params.repo}}</a>
+
+          @<a href="https://github.com/{{params.user}}/{{params.repo}}/commit/{{params.sha}}" class="sha">
+            {{params.sha}}
+          </a>
+        </div>
+
+        <nav>
+          <pending-commits firebaseApp="{{firebaseApp}}" user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></pending-commits>
+        </nav>
+
+        <commit-status firebaseApp="{{firebaseApp}}" user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></commit-status>
+      </core-scaffold>
     </template>
   </body>
 </html>

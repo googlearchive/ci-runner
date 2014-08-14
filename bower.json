@@ -2,11 +2,15 @@
   "name": "ci-runner",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#master",
-    "firebase-element": "Polymer/firebase-element#master",
-    "paper-tabs": "Polymer/paper-tabs#master",
+    "core-item": "Polymer/core-item#master",
+    "core-list": "Polymer/core-list#master",
+    "core-scaffold": "Polymer/core-scaffold#master",
+    "core-splitter": "Polymer/core-splitter#master",
     "core-toolbar": "Polymer/core-toolbar#master",
     "core-tooltip": "Polymer/core-tooltip#master",
-    "core-splitter": "Polymer/core-splitter#master"
+    "firebase-element": "Polymer/firebase-element#master",
+    "paper-tabs": "Polymer/paper-tabs#master",
+    "paper-theme-experiment": "nevir/paper-theme-experiment#master",
+    "polymer": "Polymer/polymer#master"
   }
 }

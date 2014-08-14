@@ -199,7 +199,8 @@ function testCommit(commit, needsComment, fbRef) {
       });
     },
     function(next) {
-      log.info('Setting status to ' + state + ' for ' + commit.sha);
+      log.groupEnd();
+      log.info('Setting status to ' + state);
       github.statuses.create({
         user: commit.user,
         repo: commit.repo,

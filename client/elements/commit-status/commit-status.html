@@ -4,17 +4,22 @@
 <link rel="import" href="../../components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../../components/core-tooltip/core-tooltip.html">
 <link rel="import" href="../../components/core-splitter/core-splitter.html">
+<link rel="import" href="../log-entries/log-entries.html">
 
-<polymer-element name="commit-status" fit layout vertical attributes="firebaseApp user repo sha">
+<polymer-element name="commit-status" layout vertical attributes="firebaseApp user repo sha">
   <template>
     <style>
       iframe {
         border: 0;
       }
-      .tab {
-        background-color: #2ECC40;
-        max-width: 300px;
+
+      .pass {
+        background-color: #2baf2b;
       }
+      .fail {
+        background-color: #e84e40;
+      }
+
       .tab > * {
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -24,9 +29,6 @@
       }
       .tab .result {
         font-size: 0.8em;
-      }
-      .tab.fail {
-        background-color: #FF4136;
       }
       .image {
         background-size: contain;
@@ -40,24 +42,28 @@
       .info > * {
         margin-bottom: 10px;
       }
-      .tabs {
-        background-color: lightgray;
-      }
-      .toolbar {
-        background-color: lightgray;
+
+      log-entries {
+        margin-right: 1em;
       }
     </style>
+
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/platforms"
       data="{{results}}" auto?="{{sha}}" on-data-change="{{resultsChanged}}"></firebase-element>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}"
       data="{{status}}" auto?="{{sha}}" on-data-change="{{resultsChanged}}"></firebase-element>
+
     <core-toolbar class="toolbar">
       <div hidden?="{{!status.pending}}">Tests in progress...</div>
       <div hidden?="{{!status.error}}">Error occurred running tests</div>
     </core-toolbar>
+
     <paper-tabs selected="{{selected}}" class="tabs">
+      <paper-tab class="tab status">
+        Status
+      </paper-tab>
       <template repeat="{{resultsArray}}">
-        <paper-tab class="tab {{ {fail: !passed} | tokenList }}">
+        <paper-tab class="tab {{ {fail: !passed, pass: passed} | tokenList }}">
           <core-tooltip label="{{platform}}">
             <div>{{platform}}</div>
           </core-tooltip>
@@ -65,7 +71,8 @@
         </paper-tab>
       </template>
     </paper-tabs>
-    <div flex layout horizontal hidden?="{{!resultsArray[selected]}}">
+
+    <div flex layout horizontal hidden?="{{selected == 0 || !resultsArray[selected]}}">
       <div class="info">
         <template repeat="{{resultsArray[selected].reports}}">
           <p style="font-weight:bold;">{{name}}</p>
@@ -81,6 +88,8 @@
       <core-splitter direction="left"></core-splitter>
       <div class="image" flex style="background-image:url({{resultsArray[selected].image}});"></div>
     </div>
+
+    <log-entries entries="{{status.log}}" hidden?="{{selected != 0}}"></log-entries>
   </template>
   <script>
     Polymer({

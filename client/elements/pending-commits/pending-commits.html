@@ -2,7 +2,6 @@
 <link rel="import" href="../../components/firebase-element/firebase-element.html">
 <link rel="import" href="../../components/core-list/core-list.html">
 <link rel="import" href="../../components/core-item/core-item.html">
-<link rel="import" href="commit-item.html">
 
 <polymer-element name="pending-commits" attributes="firebaseApp user repo sha">
   <template>
@@ -19,11 +18,6 @@
         <core-item selected?="{{selected}}" label="{{user}}/{{repo}}@{{shortSha}}"></core-item>
       </template>
     </core-list>
-
-    <!-- TODO(nevir): Can we use core-list more effectively here? -->
-<!--     <template repeat="{{event in events}}">
-      <commit-item event="{{event}}" on-tap="{{_selectItem}}"></commit-item>
-    </template> -->
   </template>
 
   <script>

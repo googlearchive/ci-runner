@@ -1,0 +1,76 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<link rel="import" href="../../components/core-collapse/core-collapse.html">
+<link rel="import" href="../shell-text/shell-text.html">
+
+<polymer-element name="log-entries">
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin: 1em 0 1em 1em;
+      }
+
+      .line {
+        font: 13px 'Droid Sans Mono', 'Consolas', 'Source Sans Pro', 'Menlo', monospace;
+      }
+
+      .group {
+        cursor: pointer;
+        border-bottom: 1px solid #e0e0e0;
+      }
+    </style>
+
+    <template repeat="{{key in keys}}">
+      <div>
+        <shell-text
+          text="{{entries[key].line}}"
+          class="line {{entries[key].style}}"
+          on-tap="{{toggleChildren}}">
+        </shell-text>
+
+        <template if="{{entries[key].children}}">
+          <core-collapse opened>
+            <log-entries entries="{{entries[key].children}}" class="children"></log-entries>
+          </core-collapse>
+        </template>
+      </div>
+    </template>
+  </template>
+
+  <script>
+    Polymer('log-entries', {
+      publish: {
+        entries: {value: {}},
+        showChildren: {value: true, reflect: true}
+      },
+
+      entriesChanged: function() {
+        this.info = {};
+        this.openEntryObserver(); // TODO(nevir): close on detach properly.
+        this.updateEntries();
+      },
+
+      openEntryObserver: function() {
+        if (this.entryObserver) this.closeEntryObserver();
+        if (!this.entries) return;
+        this.entryObserver = new ObjectObserver(this.entries);
+        this.entryObserver.open(this.updateEntries.bind(this));
+      },
+
+      closeEntryObserver: function() {
+        this.entryObserver.close();
+        this.entryObserver = null;
+      },
+
+      updateEntries: function() {
+        this.keys = Object.keys(this.entries || {});
+      },
+
+      toggleChildren: function(event, index, node) {
+        var collapse = node.parentNode.querySelector('core-collapse');
+        if (!collapse) return;
+        collapse.toggle();
+      }
+    });
+  </script>
+</polymer-element>

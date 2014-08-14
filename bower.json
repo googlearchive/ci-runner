@@ -11,6 +11,7 @@
     "firebase-element": "Polymer/firebase-element#master",
     "paper-tabs": "Polymer/paper-tabs#master",
     "paper-theme-experiment": "nevir/paper-theme-experiment#master",
-    "polymer": "Polymer/polymer#master"
+    "polymer": "Polymer/polymer#master",
+    "core-collapse": "Polymer/core-collapse#master"
   }
 }

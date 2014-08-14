@@ -5,7 +5,7 @@
 <link rel="import" href="../../components/core-tooltip/core-tooltip.html">
 <link rel="import" href="../../components/core-splitter/core-splitter.html">
 
-<polymer-element name="commit-status" fit layout vertical attributes="firebaseApp commitKey">
+<polymer-element name="commit-status" fit layout vertical attributes="firebaseApp user repo sha">
   <template>
     <style>
       iframe {
@@ -46,18 +46,12 @@
       .toolbar {
         background-color: lightgray;
       }
-      .details {
-        font-size: 0.7em;
-      }
     </style>
-    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{commitKey}}/platforms"
-      data="{{results}}" auto?="{{commit}}" on-data-change="{{resultsChanged}}"></firebase-element>
-    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{commitKey}}"
-      data="{{status}}" auto?="{{commit}}" on-data-change="{{resultsChanged}}"></firebase-element>
+    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/platforms"
+      data="{{results}}" auto?="{{sha}}" on-data-change="{{resultsChanged}}"></firebase-element>
+    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}"
+      data="{{status}}" auto?="{{sha}}" on-data-change="{{resultsChanged}}"></firebase-element>
     <core-toolbar class="toolbar">
-      <div flex>CI Results
-        <div class="details">{{org}} / {{repo}} <a href="https://github.com/{{org}}/{{repo}}/tree/{{commit}}">{{commit}}</a></div>
-      </div>
       <div hidden?="{{!status.pending}}">Tests in progress...</div>
       <div hidden?="{{!status.error}}">Error occurred running tests</div>
     </core-toolbar>
@@ -91,12 +85,6 @@
   <script>
     Polymer({
       selected: 0,
-      ready: function() {
-        var parts = this.commitKey.split('|');
-        this.org = parts[0];
-        this.repo = parts[1];
-        this.commit = parts[2];
-      },
       resultsChanged: function() {
         var results = [];
         for (var i in this.results) {

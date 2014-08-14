@@ -91,7 +91,7 @@ function testCommit(commit, needsComment, fbRef) {
   log.info('Starting test run');
 
   var repoPath;
-  var statusUrl = 'http://polymerlabs.github.io/ci-runner/?firebase_app=' + FIREBASE_APP + '&commitKey=' + commit.key;
+  var statusUrl = 'http://polymerlabs.github.io/ci-runner/#' + commit.key;
   var repo;
   var state;
   var statusMsg;

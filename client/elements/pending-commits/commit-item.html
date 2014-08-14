@@ -1,0 +1,45 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<link rel="import" href="../../components/core-item/core-item.html">
+<link rel="import" href="../../components/core-style/core-style.html">
+
+<polymer-element name="commit-item" attributes="event user repo commit">
+  <template>
+    <style>
+      :host {
+        cursor: pointer;
+      }
+    </style>
+
+    <core-item label="{{user}}/{{repo}}@{{shortSha}}" selected?="{{selected}}"></core-item>
+  </template>
+
+  <script>
+    Polymer('commit-item', {
+      publish: {
+        selected: {value: false, reflect: true}
+      },
+
+      eventChanged: function() {
+        // https://developer.github.com/v3/activity/events/types/#pullrequestevent
+        if (this.event.pull_request) {
+          var head = this.event.pull_request.head;
+          this.user   = head.user.login;
+          this.repo   = head.repo.name;
+          this.commit = head.sha;
+
+        // https://developer.github.com/v3/activity/events/types/#pushevent
+        } else if (this.event.head_commit) {
+          this.user   = this.event.repository.owner.name;
+          this.repo   = this.event.repository.name;
+          this.commit = this.event.head_commit.id;
+
+        } else {
+          console.warn('unknown event', this.event)
+        }
+
+        this.shortSha = this.commit.substr(0, 6);
+        this.key = {user: this.user, repo: this.repo, commit: this.commit};
+      }
+    });
+  </script>
+</polymer-element>

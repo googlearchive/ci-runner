@@ -1,0 +1,102 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+<link rel="import" href="../../components/firebase-element/firebase-element.html">
+<link rel="import" href="../../components/core-list/core-list.html">
+<link rel="import" href="../../components/core-item/core-item.html">
+<link rel="import" href="commit-item.html">
+
+<polymer-element name="pending-commits" attributes="firebaseApp user repo sha">
+  <template>
+    <style>
+      core-item {
+        cursor: pointer;
+      }
+    </style>
+
+    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/queue" data="{{queue}}" keys="{{queueKeys}}"></firebase-element>
+
+    <core-list id="list" data="{{commits}}" on-core-activate="{{onItemSelected}}">
+      <template>
+        <core-item selected?="{{selected}}" label="{{user}}/{{repo}}@{{shortSha}}"></core-item>
+      </template>
+    </core-list>
+
+    <!-- TODO(nevir): Can we use core-list more effectively here? -->
+<!--     <template repeat="{{event in events}}">
+      <commit-item event="{{event}}" on-tap="{{_selectItem}}"></commit-item>
+    </template> -->
+  </template>
+
+  <script>
+    Polymer('pending-commits', {
+      observe: {
+        user: 'updateSelection',
+        repo: 'updateSelection',
+        sha:  'updateSelection',
+      },
+
+      ready: function() {
+        this.commitIndex = {};
+      },
+
+      queueKeysChanged: function() {
+        var seen = {};
+        this.commits = [];
+        this.queueKeys.forEach(function(queueKey) {
+          var commit = this.commitForQueueKey(queueKey);
+          var key = this.commitKey(commit);
+          if (key in seen) return;
+          seen[key] = true;
+          this.commits.push(commit);
+        }.bind(this));
+
+        this.async(this.updateSelection);
+      },
+
+      commitForQueueKey: function(queueKey) {
+        if (queueKey in this.commitIndex) return this.commitIndex[queueKey];
+        var commit = null;
+        var event = this.queue[queueKey];
+        // https://developer.github.com/v3/activity/events/types/#pullrequestevent
+        if (event.pull_request) {
+          var head = event.pull_request.head;
+          commit = {user: head.user.login, repo: head.repo.name, sha: head.sha};
+        // https://developer.github.com/v3/activity/events/types/#pushevent
+        } else if (event.head_commit) {
+          var repo = event.repository;
+          commit = {user: repo.owner.name, repo: repo.name, sha: event.head_commit.id};
+        } else {
+          console.warn('unknown event type', event);
+        }
+
+        // TODO(nevir): Ideally, we'd just use a filter; but they appear to be
+        // broken! The context is undefined.
+        if (commit) {
+          commit.shortSha = commit.sha.substr(0, 6);
+        }
+
+        this.commitIndex[queueKey] = commit;
+        return commit;
+      },
+
+      commitKey: function(commit) {
+        return commit.user + '/' + commit.repo + '/' + commit.sha;
+      },
+
+      onItemSelected: function(event, detail) {
+        var commit = detail.data;
+        this.user = commit.user;
+        this.repo = commit.repo;
+        this.sha  = commit.sha;
+      },
+
+      updateSelection: function() {
+        if (!this.commits) return;
+        for (var i = 0, commit; commit = this.commits[i]; i++) {
+          if (commit.user == this.user && commit.repo == this.repo && commit.sha == this.sha) {
+            this.$.list.selectItem(i);
+          }
+        }
+      }
+    });
+  </script>
+</polymer-element>

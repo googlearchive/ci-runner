@@ -1,0 +1,161 @@
+<link rel="import" href="../../components/polymer/polymer.html">
+
+<polymer-element name="shell-text">
+  <template>
+    <style>
+      :host(:after) {
+        content: ' ';
+      }
+
+      .bold {
+        font-weight: bold;
+      }
+      .dim {
+        opacity: 0.7;
+      }
+      .italic {
+        font-style: italic;
+      }
+      .underline {
+        text-decoration: underline;
+      }
+      .invert {
+        /* -webkit-filter: invert(100%); doesn't invert the text node. */
+        outline: solid 1px;
+      }
+
+      .black {
+        color: #212121;
+      }
+      .red {
+        color: #e51c23;
+      }
+      .green {
+        color: #259b24;
+      }
+      .yellow {
+        color: #ffeb3b;
+      }
+      .blue {
+        color: #5677fc;
+      }
+      .magenta {
+        color: #e91e63;
+      }
+      .cyan {
+        color: #00bcd4;
+      }
+      .white {
+        color: #fffff;
+      }
+
+      .black-bg {
+        background-color: #212121;
+      }
+      .red-bg {
+        background-color: #e51c23;
+      }
+      .green-bg {
+        background-color: #259b24;
+      }
+      .yellow-bg {
+        background-color: #ffeb3b;
+      }
+      .blue-bg {
+        background-color: #5677fc;
+      }
+      .magenta-bg {
+        background-color: #e91e63;
+      }
+      .cyan-bg {
+        background-color: #00bcd4;
+      }
+      .white-bg {
+        background-color: #fffff;
+      }
+    </style>
+    &#8203;
+    <span id="text"></span>
+  </template>
+
+  <script>
+  (function() {
+    var SHELL_MAP = {
+      '1':  'bold',
+      '2':  'dim',
+      '3':  'italic',
+      '4':  'underline',
+      '5':  'blink', // Uh oh.
+      '6':  'fast-blink',
+      '7':  'invert',
+      '8':  'conceal',
+      '9':  'strike',
+      '30': 'black',
+      '31': 'red',
+      '32': 'green',
+      '33': 'yellow',
+      '34': 'blue',
+      '35': 'magenta',
+      '36': 'cyan',
+      '37': 'white',
+      '40': 'black',
+      '41': 'red',
+      '42': 'green',
+      '43': 'yellow',
+      '44': 'blue',
+      '45': 'magenta',
+      '46': 'cyan',
+      '47': 'white',
+    };
+
+    Polymer('shell-text', {
+      publish: {
+        /**
+         * The shell-formatted text to convert to HTML.
+         *
+         * @attribute text
+         * @type String
+         */
+        text: ''
+      },
+
+      textChanged: function() {
+        this.clearSpans();
+        var regex = /\033\[([\d;]+)m/g;
+        var span  = document.createElement('span');
+        var match;
+        while (match = regex.exec(this.text)) {
+          this.completeSpan(span, match.index);
+
+          span = document.createElement('span');
+          span.start = regex.lastIndex;
+          this.addClasses(span, match[1]);
+        }
+        this.completeSpan(span, this.text.length);
+      },
+
+      completeSpan: function(span, end) {
+        var start = span.start || 0;
+        if (end <= start) return;
+        span.textContent = this.text.substr(start, end - start);
+        this.shadowRoot.appendChild(span);
+      },
+
+      addClasses: function(span, code) {
+        return code.split(';').map(function(id) {
+          if (id in SHELL_MAP) {
+            span.classList.add(SHELL_MAP[id]);
+          }
+        });
+      },
+
+      clearSpans: function() {
+        var spans = this.shadowRoot.getElementsByTagName('span');
+        for (var i = 0, span; span = spans[i]; i++) {
+          span.remove();
+        }
+      },
+    });
+  })();
+  </script>
+</polymer-element>

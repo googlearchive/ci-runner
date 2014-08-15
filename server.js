@@ -122,3 +122,5 @@ hooks.on('pull_request', function(event) {
 });
 
 app.listen(PORT);
+
+console.log('server listening for requests');

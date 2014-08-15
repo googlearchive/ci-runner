@@ -69,7 +69,7 @@ run_create() {
           - name: CONCURRENCY
             value: $CONCURRENCY"
 
-  if [[ "$GCLOUD_TARGET_POOL" -ne "" ]]; then
+  if [[ "$GCLOUD_TARGET_POOL" != "" ]]; then
     exec_gcloud compute target-pools add-instances $GCLOUD_TARGET_POOL \
       --instances $worker_name \
       --zone      $MACHINE_ZONE

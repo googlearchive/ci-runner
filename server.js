@@ -1,10 +1,10 @@
 'use strict';
 
-var express        = require('express');
-var Firebase       = require('firebase');
-var GitHub         = require('github');
-var os             = require('os');
-var WebhookHandler = require('github-webhook-handler');
+var express    = require('express');
+var Firebase   = require('firebase');
+var GitHub     = require('github');
+var os         = require('os');
+var GHWebHooks = require('github-webhook-handler');
 
 var Commit     = require('./lib/commit');
 var Log        = require('./lib/log');
@@ -23,6 +23,8 @@ var CONCURRENCY = parseInt(process.env.CONCURRENCY) || 10;
 var JITTER = process.env.JITTER || 250;
 // Maximum number of milliseconds for an item to be claimed before it times out.
 var ITEM_TIMEOUT = process.env.ITEM_TIMEOUT || 1800000; // 30 minutes.
+// Port to listen to HTTP traffic on.
+var PORT = process.env.PORT || 3000;
 
 // OAuth token used when posting statuses/comments to GitHub.
 // See https://github.com/settings/applications
@@ -32,7 +34,7 @@ var GITHUB_WEBHOOK_PATH = process.env.GITHUB_WEBHOOK_PATH || '/github';
 // The secret registered for the webhook; invalid requests will be rejected.
 var GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 // A whitelist of refs that pushes are accepted for.
-var VALID_PUSH_REFS = (process.env.VALID_PUSH_REFS || 'refs/heads/master').split(' ');
+var VALID_PUSH_BRANCHES = (process.env.VALID_PUSH_BRANCHES || 'master').split(' ');
 
 // Your Sauce Labs username.
 var SAUCE_USERNAME = process.env.SAUCE_USERNAME;
@@ -47,7 +49,7 @@ var FIREBASE_ROOT = process.env.FIREBASE_ROOT;
 var app    = express();
 var fbRoot = new Firebase(FIREBASE_ROOT);
 var queue  = new Queue(processor, fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
-var hooks  = new WebhookHandler({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
+var hooks  = new GHWebHooks({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
 
 var github = new GitHub({version: '3.0.0'});
 github.authenticate({type: 'oauth', token: GITHUB_OAUTH_TOKEN});
@@ -70,18 +72,13 @@ function processor(commit, done) {
 
 // Web Server
 
+app.use(hooks);
+
 app.get('/', function(req, res) {
   res.send('CI Runner: https://github.com/PolymerLabs/ci-runner');
 });
 
-app.use(hooks);
 hooks.on('push', function(event) {
-  var payload = event.payload
-  if (VALID_PUSH_REFS.indexOf(payload.ref) === -1) {
-    console.log('Push ref not in whitelist:', payload.ref);
-    return;
-  }
-
   var commit;
   try {
     commit = Commit.forPushEvent(payload);
@@ -89,7 +86,12 @@ hooks.on('push', function(event) {
     console.log('Malformed push event:', error, '\n', payload);
     return;
   }
-  queue.add(commit);
+
+  if (VALID_PUSH_BRANCHES.indexOf(commit.branch) === -1) {
+    console.log('Push branch not in whitelist:', commit.branch);
+  } else {
+    queue.add(commit);
+  }
 });
 
 hooks.on('pull_request', function(event) {
@@ -104,4 +106,4 @@ hooks.on('pull_request', function(event) {
   queue.add(commit);
 });
 
-app.listen(process.env.PORT || 3000);
+app.listen(PORT);

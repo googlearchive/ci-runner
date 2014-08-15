@@ -1,9 +1,8 @@
 Polymer CI Runner
 =================
 
-A quick 'n dirty Node app that pulls GitHub webhook events off of a
-[Firebase](https://www.firebase.com/) queue and runs the appropriate set of
-tests for them.
+A continuous integration test runner focused on web components. It accepts 
+GitHub webhooks, coordinates a fleet of workers, and runs tests.
 
 
 Configuring The Webhook
@@ -33,24 +32,19 @@ that you can use; and we provide configuration to make that easy.
 ### Google Compute Engine
 
 You can make use of the [`tools/gcloud/manage`](tools/gcloud/manage) script.
-You will need to create a `.polymer-ci-runner.sh` and place it somewhere handy:
+You will need to create a `.polymer-ci-runner.sh` and place it somewhere handy.
+
+At minimum, you need the following options specified:
 
 ```sh
 # The Google Compute Engine project name.
 export GCLOUD_PROJECT=my-ci-project
 
-# Number of concurrent test runs.
-export CONCURRENCY=10
-
 # OAuth token used when posting statuses/comments to GitHub.
 # See https://github.com/settings/applications
 export GITHUB_OAUTH_TOKEN=abcdef0123456789abcdef0123456789abcdef01
-# URL path to accept GitHub webhooks on.
-export GITHUB_WEBHOOK_PATH=/github
 # The secret registered for the webhook; invalid requests will be rejected.
 export GITHUB_WEBHOOK_SECRET=abcdef0123456789abcdef0123456789abcdef01
-# A whitelist of refs that pushes are accepted for.
-export VALID_PUSH_REFS=refs/heads/master
 
 # Your Sauce Labs username.
 export SAUCE_USERNAME=username
@@ -64,17 +58,5 @@ export FIREBASE_ROOT=https://my-firebase-app.firebaseio.com
 You can then run `manage` from any directory that contains that config file
 directly, or up its path.
 
-
-### Heroku
-
-TODO.
-
-
-### EC2
-
-TODO.
-
-
-### Other Hosting Providers
-
-TODO.
+The full set of configuration values is specified in
+[`server.js`](server.js#L15-45).

@@ -10,10 +10,15 @@ var Queue  = require('./lib/queue');
 
 // Available Configuration
 
-// Number of concurrent test runs.
-var CONCURRENCY = parseInt(process.env.CONCURRENCY) || 1;
 // A unique identifier for this worker.
 var WORKER_ID = process.env.WORKER_ID || os.hostname();
+// Number of concurrent test runs.
+var CONCURRENCY = parseInt(process.env.CONCURRENCY) || 10;
+// Maximum delay in ms between transaction attempts. Minimum delay will be half
+// of the maximum value.
+var JITTER = process.env.JITTER || 250;
+// Maximum number of milliseconds for an item to be claimed before it times out.
+var ITEM_TIMEOUT = process.env.ITEM_TIMEOUT || 1800000; // 30 minutes.
 
 // OAuth token used when posting statuses/comments to GitHub.
 // See https://github.com/settings/applications
@@ -37,7 +42,7 @@ var FIREBASE_ROOT = process.env.FIREBASE_ROOT;
 
 var app    = express();
 var fbRoot = new Firebase(FIREBASE_ROOT);
-var queue  = new Queue(fbRoot, WORKER_ID, CONCURRENCY);
+var queue  = new Queue(fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
 var hooks  = new WebhookHandler({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
 
 app.get('/', function(req, res) {

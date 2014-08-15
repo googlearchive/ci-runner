@@ -50,6 +50,8 @@ run_create() {
           env:
           - name: GITHUB_OAUTH_TOKEN
             value: $GITHUB_OAUTH_TOKEN
+          - name: GITHUB_WEBHOOK_SECRET
+            value: $GITHUB_WEBHOOK_SECRET
           - name: FIREBASE_ROOT
             value: $FIREBASE_ROOT
           - name: SAUCE_USERNAME
@@ -123,7 +125,7 @@ load_config() {
 validate_config() {
   missing=()
 
-  for var in GCLOUD_PROJECT GITHUB_OAUTH_TOKEN SAUCE_USERNAME SAUCE_ACCESS_KEY FIREBASE_APP; do
+  for var in GCLOUD_PROJECT GITHUB_OAUTH_TOKEN GITHUB_WEBHOOK_SECRET SAUCE_USERNAME SAUCE_ACCESS_KEY FIREBASE_ROOT; do
     eval value=\$$var
     if [[ ! "$value" ]]; then
       missing+=($var)

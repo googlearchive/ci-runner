@@ -2,11 +2,15 @@
 
 var express        = require('express');
 var Firebase       = require('firebase');
+var GitHub         = require('github');
 var os             = require('os');
 var WebhookHandler = require('github-webhook-handler');
 
-var Commit = require('./lib/commit');
-var Queue  = require('./lib/queue');
+var Commit     = require('./lib/commit');
+var Log        = require('./lib/log');
+var protect    = require('./lib/protect');
+var Queue      = require('./lib/queue');
+var TestRunner = require('./lib/testrunner');
 
 // Available Configuration
 
@@ -38,12 +42,33 @@ var SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
 // The Firebase URL where queue entries and run statuses are stored under.
 var FIREBASE_ROOT = process.env.FIREBASE_ROOT;
 
-// Server
+// Setup
 
 var app    = express();
 var fbRoot = new Firebase(FIREBASE_ROOT);
-var queue  = new Queue(fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
+var queue  = new Queue(processor, fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
 var hooks  = new WebhookHandler({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
+
+var github = new GitHub({version: '3.0.0'});
+github.authenticate({type: 'oauth', token: GITHUB_OAUTH_TOKEN});
+
+// Commit Processor
+
+function processor(commit, done) {
+  // TODO(nevir): synchronize status output too!
+  var fbStatus = fbRoot.child('status').child(commit.key);
+  var log      = new Log(process.stdout, commit, fbStatus.child('log'));
+  var runner   = new TestRunner(commit, fbStatus, github, log);
+  protect(function() {
+    runner.run(done);
+  }, function(error) {
+    log.fatal(error, 'CI runner internal error:');
+    runner.setCommitStatus('error', 'Internal Error');
+    done(error);
+  });
+}
+
+// Web Server
 
 app.get('/', function(req, res) {
   res.send('CI Runner: https://github.com/PolymerLabs/ci-runner');

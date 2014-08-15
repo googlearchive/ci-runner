@@ -36,11 +36,11 @@ main() {
 run_create() {
   worker_name=$WORKER_PREFIX-$(uuid)
   exec_gcloud compute instances create $worker_name \
-    --quiet \
     --image-project $MACHINE_IMAGE_PROJECT \
     --image         $MACHINE_IMAGE_NAME \
     --zone          $MACHINE_ZONE \
     --machine-type  $MACHINE_TYPE \
+    --tags          http-server \
     --metadata \
       google-container-manifest="
         version: v1beta2
@@ -68,6 +68,12 @@ run_create() {
             value: $worker_name
           - name: CONCURRENCY
             value: $CONCURRENCY"
+
+  if [[ "$GCLOUD_TARGET_POOL" -ne "" ]]; then
+    exec_gcloud compute target-pools add-instances $GCLOUD_TARGET_POOL \
+      --instances $worker_name \
+      --zone      $MACHINE_ZONE
+  fi
 }
 
 run_list() {
@@ -75,7 +81,7 @@ run_list() {
 }
 
 run_delete() {
-  exec_gcloud compute instances delete --quiet --zone $MACHINE_ZONE $(args_to_instances "$@")
+  exec_gcloud compute instances delete --zone $MACHINE_ZONE $(args_to_instances "$@")
 }
 
 run_update() {
@@ -149,7 +155,7 @@ uuid() {
 }
 
 exec_gcloud() {
-  args=(gcloud --project "$GCLOUD_PROJECT" "$@")
+  args=(gcloud --quiet --project "$GCLOUD_PROJECT" "$@")
   echo "> ${args[@]}"
   echo
   "${args[@]}"

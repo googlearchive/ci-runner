@@ -46,27 +46,29 @@ app.get('/', function(req, res) {
 
 app.use(hooks);
 hooks.on('push', function(event) {
-  if (VALID_PUSH_REFS.indexOf(event.ref) === -1) {
-    console.log('Push ref not in whitelist:', event.ref);
+  var payload = event.payload
+  if (VALID_PUSH_REFS.indexOf(payload.ref) === -1) {
+    console.log('Push ref not in whitelist:', payload.ref);
     return;
   }
 
   var commit;
   try {
-    commit = Commit.forPushEvent(event);
+    commit = Commit.forPushEvent(payload);
   } catch (error) {
-    console.log('Malformed push event:', error, '\n', event);
+    console.log('Malformed push event:', error, '\n', payload);
     return;
   }
   queue.add(commit);
 });
 
 hooks.on('pull_request', function(event) {
+  var payload = event.payload;
   var commit;
   try {
-    commit = Commit.forPullRequestEvent(event);
+    commit = Commit.forPullRequestEvent(payload);
   } catch (error) {
-    console.log('Malformed push event:', error, '\n', event);
+    console.log('Malformed push event:', error, '\n', payload);
     return;
   }
   queue.add(commit);

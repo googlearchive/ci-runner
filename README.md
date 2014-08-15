@@ -37,16 +37,28 @@ You will need to create a `.polymer-ci-runner.sh` and place it somewhere handy:
 
 ```sh
 # The Google Compute Engine project name.
-GCLOUD_PROJECT=my-ci-project
-# A GitHub OAuth token with repo:status permissions.
+export GCLOUD_PROJECT=my-ci-project
+
+# Number of concurrent test runs.
+export CONCURRENCY=10
+
+# OAuth token used when posting statuses/comments to GitHub.
 # See https://github.com/settings/applications
-GITHUB_OAUTH_TOKEN=abcdef0123456789abcdef0123456789abcdef01
+export GITHUB_OAUTH_TOKEN=abcdef0123456789abcdef0123456789abcdef01
+# URL path to accept GitHub webhooks on.
+export GITHUB_WEBHOOK_PATH=/github
+# The secret registered for the webhook; invalid requests will be rejected.
+export GITHUB_WEBHOOK_SECRET=abcdef0123456789abcdef0123456789abcdef01
+# A whitelist of refs that pushes are accepted for.
+export VALID_PUSH_REFS=refs/heads/master
+
 # Your Sauce Labs username.
-SAUCE_USERNAME=username
+export SAUCE_USERNAME=username
 # Your Sauce Labs access key.
-SAUCE_ACCESS_KEY=abcdef01-abcd-abcd-abcd-abcdef012345
-# The firebase app where webhook jobs should be stored.
-FIREBASE_APP=my-firebase-app
+export SAUCE_ACCESS_KEY=abcdef01-abcd-abcd-abcd-abcdef012345
+
+# The Firebase URL where queue entries and run statuses are stored under.
+export FIREBASE_ROOT=https://my-firebase-app.firebaseio.com
 ```
 
 You can then run `manage` from any directory that contains that config file

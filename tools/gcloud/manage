@@ -3,6 +3,10 @@
 set -e
 
 # Common settings; but feel free to override them if you like.
+CONCURRENCY=10
+GITHUB_WEBHOOK_PATH=/github
+VALID_PUSH_REFS=refs/heads/master
+
 DOCKER_IMAGE=polymerlabs/ci-runner
 MACHINE_IMAGE_NAME=container-vm-v20140731
 MACHINE_IMAGE_PROJECT=google-containers
@@ -30,7 +34,8 @@ main() {
 # Commands
 
 run_create() {
-  exec_gcloud compute instances create $WORKER_PREFIX-$(uuid) \
+  worker_name=$WORKER_PREFIX-$(uuid)
+  exec_gcloud compute instances create $worker_name \
     --quiet \
     --image-project $MACHINE_IMAGE_PROJECT \
     --image         $MACHINE_IMAGE_NAME \
@@ -45,12 +50,16 @@ run_create() {
           env:
           - name: GITHUB_OAUTH_TOKEN
             value: $GITHUB_OAUTH_TOKEN
-          - name: FIREBASE_APP
-            value: $FIREBASE_APP
+          - name: FIREBASE_ROOT
+            value: $FIREBASE_ROOT
           - name: SAUCE_USERNAME
             value: $SAUCE_USERNAME
           - name: SAUCE_ACCESS_KEY
-            value: $SAUCE_ACCESS_KEY"
+            value: $SAUCE_ACCESS_KEY
+          - name: WORKER_ID
+            value: $worker_name
+          - name: CONCURRENCY
+            value: $CONCURRENCY"
 }
 
 run_list() {

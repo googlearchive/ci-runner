@@ -247,6 +247,7 @@ function urlForSauceResource(resource) {
 function updateWithLog(log, fbStatus, jobId) {
   var url = urlForSauceResource('/jobs/' + jobId + '/assets/log.json');
   request.get(url, function(err, resp, body) {
+    log.info('got sauce log', body);
     if (!err && resp.statusCode == 200) {
       var payload;
       try {

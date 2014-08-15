@@ -46,17 +46,30 @@ app.get('/', function(req, res) {
 
 app.use(hooks);
 hooks.on('push', function(event) {
-  console.log('GitHub push event:', event);
   if (VALID_PUSH_REFS.indexOf(event.ref) === -1) {
     console.log('Push ref not in whitelist:', event.ref);
     return;
   }
-  queue.add(Commit.forPushEvent(event));
+
+  var commit;
+  try {
+    commit = Commit.forPushEvent(event);
+  } catch (error) {
+    console.log('Malformed push event:', error, '\n', event);
+    return;
+  }
+  queue.add(commit);
 });
 
 hooks.on('pull_request', function(event) {
-  console.log('GitHub pull_request event:', event);
-  queue.add(Commit.forPullRequestEvent(event));
+  var commit;
+  try {
+    commit = Commit.forPullRequestEvent(event);
+  } catch (error) {
+    console.log('Malformed push event:', error, '\n', event);
+    return;
+  }
+  queue.add(commit);
 });
 
 app.listen(process.env.PORT || 3000);

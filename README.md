@@ -20,7 +20,7 @@ You will want to turn on pull request and push status.
 Running Locally
 ---------------
 
-`node .`
+`node server`
 
 
 Spinning Up Your Own Workers

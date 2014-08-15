@@ -43,16 +43,20 @@ var SAUCE_ACCESS_KEY = process.env.SAUCE_ACCESS_KEY;
 
 // The Firebase URL where queue entries and run statuses are stored under.
 var FIREBASE_ROOT = process.env.FIREBASE_ROOT;
+// The Firebase secret used to generate an authentication token.
+var FIREBASE_SECRET = process.env.FIREBASE_SECRET;
 
 // Setup
 
-var app    = express();
 var fbRoot = new Firebase(FIREBASE_ROOT);
-var queue  = new Queue(processor, fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
-var hooks  = new GHWebHooks({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
+fbRoot.auth(FIREBASE_SECRET);
 
 var github = new GitHub({version: '3.0.0'});
 github.authenticate({type: 'oauth', token: GITHUB_OAUTH_TOKEN});
+
+var app    = express();
+var queue  = new Queue(processor, fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
+var hooks  = new GHWebHooks({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
 
 // Commit Processor
 

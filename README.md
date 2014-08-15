@@ -53,10 +53,12 @@ export SAUCE_ACCESS_KEY=abcdef01-abcd-abcd-abcd-abcdef012345
 
 # The Firebase URL where queue entries and run statuses are stored under.
 export FIREBASE_ROOT=https://my-firebase-app.firebaseio.com
+# The Firebase secret used to generate an authentication token.
+export FIREBASE_SECRET=MDEyMzQ1Njc4OWFiY2RlZmdoaWprbG1ub3BxcnN0
 ```
 
 You can then run `manage` from any directory that contains that config file
 directly, or up its path.
 
 The full set of configuration values is specified in
-[`server.js`](server.js#L15-45).
+[`server.js`](server.js#L15-47).

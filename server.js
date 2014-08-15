@@ -80,9 +80,7 @@ console.log('server starting');
 
 app.use(function(req, res, next){
   console.log('%s %s', req.method, req.url);
-  var start = Date.now();
   next();
-  console.log('%s %s complete in %fms', req.method, req.url, Date.now() - start);
 });
 
 app.use(hooks);

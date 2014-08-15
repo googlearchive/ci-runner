@@ -92,6 +92,7 @@ app.get('/', function(req, res) {
 hooks.on('push', function(event) {
   console.log('Received GitHub push event');
 
+  var payload = event.payload;
   var commit;
   try {
     commit = Commit.forPushEvent(payload);

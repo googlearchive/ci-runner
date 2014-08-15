@@ -1,10 +1,11 @@
 'use strict';
 
 var express        = require('express');
+var Firebase       = require('firebase');
 var os             = require('os');
 var WebhookHandler = require('github-webhook-handler');
 
-var Commit = reqiure('./lib/commit');
+var Commit = require('./lib/commit');
 var Queue  = require('./lib/queue');
 
 // Available Configuration

@@ -47,7 +47,13 @@ run_create() {
         containers:
         - name: $WORKER_PREFIX
           image: $DOCKER_IMAGE
+          ports:
+          - name: http
+            hostPort: 80
+            containerPort: 2727
           env:
+          - name: PORT
+            value: 2727
           - name: GITHUB_OAUTH_TOKEN
             value: $GITHUB_OAUTH_TOKEN
           - name: GITHUB_WEBHOOK_SECRET

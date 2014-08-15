@@ -72,6 +72,13 @@ function processor(commit, done) {
 
 // Web Server
 
+console.log('server starting');
+
+app.use(function(req, res, next){
+  console.log('%s %s', req.method, req.url);
+  next();
+});
+
 app.use(hooks);
 
 app.get('/', function(req, res) {
@@ -79,6 +86,8 @@ app.get('/', function(req, res) {
 });
 
 hooks.on('push', function(event) {
+  console.log('Received GitHub push event');
+
   var commit;
   try {
     commit = Commit.forPushEvent(payload);
@@ -95,6 +104,8 @@ hooks.on('push', function(event) {
 });
 
 hooks.on('pull_request', function(event) {
+  console.log('Received GitHub pull_request event');
+
   var payload = event.payload;
   var commit;
   try {

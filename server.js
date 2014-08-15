@@ -14,6 +14,8 @@ var TestRunner = require('./lib/testrunner');
 
 // Available Configuration
 
+// Port to listen to HTTP traffic on.
+var PORT = process.env.PORT || 3000;
 // A unique identifier for this worker.
 var WORKER_ID = process.env.WORKER_ID || os.hostname();
 // Number of concurrent test runs.
@@ -23,8 +25,6 @@ var CONCURRENCY = parseInt(process.env.CONCURRENCY) || 10;
 var JITTER = process.env.JITTER || 250;
 // Maximum number of milliseconds for an item to be claimed before it times out.
 var ITEM_TIMEOUT = process.env.ITEM_TIMEOUT || 1800000; // 30 minutes.
-// Port to listen to HTTP traffic on.
-var PORT = process.env.PORT || 3000;
 
 // OAuth token used when posting statuses/comments to GitHub.
 // See https://github.com/settings/applications

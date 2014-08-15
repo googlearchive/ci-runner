@@ -2,11 +2,20 @@
 
 set -e
 
-# Common settings; but feel free to override them if you like.
-CONCURRENCY=10
-GITHUB_WEBHOOK_PATH=/github
-VALID_PUSH_REFS=refs/heads/master
+# Optional worker settings.
+#
+# See server.js for the full list & documentation.
 
+PORT=2727
+CONCURRENCY=10
+JITTER=250
+ITEM_TIMEOUT=1800000
+GITHUB_WEBHOOK_PATH=/github
+VALID_PUSH_BRANCHES=master
+
+# Docker-specific configuration.
+
+PUBLIC_PORT=80
 DOCKER_IMAGE=polymerlabs/ci-runner
 MACHINE_IMAGE_NAME=container-vm-v20140731
 MACHINE_IMAGE_PROJECT=google-containers
@@ -49,25 +58,39 @@ run_create() {
           image: $DOCKER_IMAGE
           ports:
           - name: http
-            hostPort: 80
-            containerPort: 2727
+            hostPort: $PUBLIC_PORT
+            containerPort: $PORT
           env:
           - name: PORT
-            value: 2727
+            value: $PORT
+          - name: WORKER_ID
+            value: $worker_name
+          - name: CONCURRENCY
+            value: $CONCURRENCY
+          - name: JITTER
+            value: $JITTER
+          - name: ITEM_TIMEOUT
+            value: $ITEM_TIMEOUT
+
           - name: GITHUB_OAUTH_TOKEN
             value: $GITHUB_OAUTH_TOKEN
+          - name: GITHUB_WEBHOOK_PATH
+            value: $GITHUB_WEBHOOK_PATH
           - name: GITHUB_WEBHOOK_SECRET
             value: $GITHUB_WEBHOOK_SECRET
-          - name: FIREBASE_ROOT
-            value: $FIREBASE_ROOT
+          - name: VALID_PUSH_BRANCHES
+            value: $VALID_PUSH_BRANCHES
+
           - name: SAUCE_USERNAME
             value: $SAUCE_USERNAME
           - name: SAUCE_ACCESS_KEY
             value: $SAUCE_ACCESS_KEY
-          - name: WORKER_ID
-            value: $worker_name
-          - name: CONCURRENCY
-            value: $CONCURRENCY"
+
+          - name: FIREBASE_ROOT
+            value: $FIREBASE_ROOT
+          - name: FIREBASE_SECRET
+            value: $FIREBASE_SECRET
+  "
 
   if [[ "$GCLOUD_TARGET_POOL" != "" ]]; then
     exec_gcloud compute target-pools add-instances $GCLOUD_TARGET_POOL \

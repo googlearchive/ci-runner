@@ -6,7 +6,7 @@
 <link rel="import" href="../../components/core-splitter/core-splitter.html">
 <link rel="import" href="../log-entries/log-entries.html">
 
-<polymer-element name="commit-status" layout vertical attributes="firebaseApp user repo sha">
+<polymer-element name="commit-status" layout vertical fit attributes="firebaseApp user repo sha">
   <template>
     <style>
       .pass {
@@ -26,6 +26,15 @@
       .tab .result {
         font-size: 0.8em;
       }
+
+      #content {
+        overflow: auto;
+      }
+
+      log-entries {
+        margin-right: 1em;
+      }
+
       .image {
         background-size: contain;
         background-repeat: no-repeat;
@@ -38,25 +47,16 @@
       .info > * {
         margin-bottom: 10px;
       }
-
-      log-entries {
-        margin-right: 1em;
-      }
     </style>
 
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/platforms"
-      data="{{results}}" auto?="{{sha}}" on-data-change="{{resultsChanged}}"></firebase-element>
+      data="{{results}}" on-data-change="{{resultsChanged}}"></firebase-element>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}"
-      data="{{status}}" auto?="{{sha}}" on-data-change="{{resultsChanged}}"></firebase-element>
-
-    <core-toolbar class="toolbar">
-      <div hidden?="{{!status.pending}}">Tests in progress...</div>
-      <div hidden?="{{!status.error}}">Error occurred running tests</div>
-    </core-toolbar>
+      data="{{status}}" on-data-change="{{resultsChanged}}"></firebase-element>
 
     <paper-tabs selected="{{selected}}" class="tabs">
-      <paper-tab class="tab status">
-        Status
+      <paper-tab class="tab log">
+        Run Log
       </paper-tab>
       <template repeat="{{resultsArray}}">
         <paper-tab class="tab {{ {fail: !passed, pass: passed} | tokenList }}">
@@ -68,24 +68,26 @@
       </template>
     </paper-tabs>
 
-    <div flex layout horizontal hidden?="{{selected == 0 || !resultsArray[selected]}}">
-      <div class="info">
-        <template repeat="{{resultsArray[selected].reports}}">
-          <p style="font-weight:bold;">{{name}}</p>
-          <em>Message</em>
-          <code><pre>{{message}}</pre></code>
-          <div hidden?="{{!stack}}">
-            <em>Stack</em>
-            <code><pre>{{stack}}</pre></code>
-          </div>
-          <hr>
-        </template>
-      </div>
-      <core-splitter direction="left"></core-splitter>
-      <div class="image" flex style="background-image:url({{resultsArray[selected].image}});"></div>
-    </div>
+    <section id="content" flex>
+      <log-entries entries="{{status.log}}" hidden?="{{selected != 0}}"></log-entries>
 
-    <log-entries entries="{{status.log}}" hidden?="{{selected != 0}}"></log-entries>
+      <div layout horizontal hidden?="{{selected == 0 || !resultsArray[selected]}}">
+        <div class="info">
+          <template repeat="{{resultsArray[selected].reports}}">
+            <p style="font-weight:bold;">{{name}}</p>
+            <em>Message</em>
+            <code><pre>{{message}}</pre></code>
+            <div hidden?="{{!stack}}">
+              <em>Stack</em>
+              <code><pre>{{stack}}</pre></code>
+            </div>
+            <hr>
+          </template>
+        </div>
+        <core-splitter direction="left"></core-splitter>
+        <div class="image" flex style="background-image:url({{resultsArray[selected].image}});"></div>
+      </div>
+    </section>
   </template>
   <script>
     Polymer({

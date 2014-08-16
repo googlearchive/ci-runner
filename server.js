@@ -1,5 +1,6 @@
 'use strict';
 
+var chalk      = require('chalk');
 var express    = require('express');
 var Firebase   = require('firebase');
 var GitHub     = require('github');
@@ -47,6 +48,9 @@ var FIREBASE_ROOT = process.env.FIREBASE_ROOT;
 var FIREBASE_SECRET = process.env.FIREBASE_SECRET;
 
 // Setup
+
+// For the matter; we may not be in a real TTY.
+chalk.enabled = true;
 
 var fbRoot = new Firebase(FIREBASE_ROOT);
 fbRoot.auth(FIREBASE_SECRET);

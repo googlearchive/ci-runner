@@ -22,7 +22,11 @@
     "grunt": "^0.4.5",
     "grunt-bower-task": "^0.4.0",
     "grunt-shell": "^0.7.0",
-    "grunt-vulcanize": "^0.4.1"
+    "grunt-vulcanize": "^0.4.1",
+    "gulp": "^3.8.7",
+    "gulp-bower": "0.0.6",
+    "gulp-shell": "^0.2.9",
+    "gulp-vulcanize": "^1.0.0"
   },
   "scripts": {
     "server": "node server"

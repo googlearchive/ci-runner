@@ -18,7 +18,7 @@ gulp.task('vulcanize', ['bower'], function() {
 
 gulp.task('publish', ['vulcanize'], shell.task([
   'cd gh-pages && git commit --all -m "Published via \\`bower publish\\`." && git push origin gh-pages',
-  'git commit --all -m "Published via \\`bower publish\\`." && git push origin gh-pages',
+  'git commit --all -m "Published via \\`bower publish\\`." && git push origin master',
 ]));
 
 gulp.task

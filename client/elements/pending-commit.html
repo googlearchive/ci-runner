@@ -1,9 +1,9 @@
-<link rel="import" href="../../components/polymer/polymer.html">
-<link rel="import" href="../../components/firebase-element/firebase-element.html">
-<link rel="import" href="../../components/core-icon/core-icon.html">
-<link rel="import" href="../../components/core-icons/core-icons.html">
-<link rel="import" href="../../components/core-icons/notification-icons.html">
-<link rel="import" href="../../components/paper-theme-experiment/paper-theme-style.html">
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/firebase-element/firebase-element.html">
+<link rel="import" href="../components/core-icon/core-icon.html">
+<link rel="import" href="../components/core-icons/core-icons.html">
+<link rel="import" href="../components/core-icons/notification-icons.html">
+<link rel="import" href="../components/paper-theme-experiment/paper-theme-style.html">
 
 <polymer-element name="pending-commit" attributes="firebaseApp commit" class="state-{{status.state}}" layout horizontal>
   <!-- awkward. Really just need a core-style that can be placed in element templates w/o id/ref. -->
@@ -41,10 +41,6 @@
 
   <script>
     Polymer('pending-commit', {
-      substr: function(string, start, end) {
-        return string.substr(start, end);
-      },
-
       statusIcon: function(state) {
         if (state == 'success') {
           return 'check';

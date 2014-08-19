@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -8,12 +9,15 @@
     <script src="components/platform/platform.js"></script>
     <link rel="import" href="components/paper-theme-experiment/paper-theme.html">
     <link rel="import" href="components/paper-theme-experiment/paper-theme-style.html">
-
     <link rel="import" href="components/core-scaffold/core-scaffold.html">
-    <link rel="import" href="elements/commit-status/commit-status.html">
-    <link rel="import" href="elements/pending-commits/pending-commits.html">
-    <link rel="import" href="elements/more-param/more-param.html">
-    <link rel="import" href="elements/more-route/more-route.html">
+    <link rel="import" href="components/more-routing/more-route-if.html">
+    <link rel="import" href="components/more-routing/more-route-switch.html">
+
+    <link rel="import" href="routes.html">
+
+    <link rel="import" href="elements/commit-header.html">
+    <link rel="import" href="elements/commit-status.html">
+    <link rel="import" href="elements/pending-commits.html">
 
     <paper-theme primaryColor="#3f51b5" accentColor="#ff4081"></paper-theme>
 
@@ -30,53 +34,41 @@
         margin: 0;
       }
 
-      /*
-        Ideally, we'd just filter the binding: {{params.sha | substr(0, 8)}},
-        but that appears to be broken. (`input` is undefined).
-
-        TODO(nevir): Figure out why.
-       */
-      [tool] {
-        font-size: 0.7em;
-      }
-
-      [tool] a {
-        color: white;
-        text-decoration: none;
-      }
-
-      [tool] .user img {
-        display: inline-block;
-        height: 28px;
-        vertical-align: middle;
-        width: 28px;
+      .intro-info {
+        padding: 20px;
       }
     </style>
   </head>
-  <body unresolved>
+  <body>
     <template is="auto-binding">
-      <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
-      <more-route route=":user/:repo/:sha" params="{{params}}"></more-route>
-
-      <core-scaffold responsiveWidth="800px">
-        <div tool>
-          <span class="user">
-            <img src="https://avatars.githubusercontent.com/{{params.user}}?size=56">
-            <a href="https://github.com/{{params.user}}">{{params.user}}</a>
-          </span>
-          /
-          <a href="https://github.com/{{params.user}}/{{params.repo}}" class="repo">{{params.repo}}</a>
-
-          @<a href="https://github.com/{{params.user}}/{{params.repo}}/commit/{{params.sha}}" class="sha">
-            {{params.sha}}
-          </a>
-        </div>
-
+      <core-scaffold responsiveWidth="900px">
         <nav>
-          <pending-commits firebaseApp="{{firebaseApp}}" user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></pending-commits>
+          <pending-commits></pending-commits>
         </nav>
 
-        <commit-status firebaseApp="{{firebaseApp}}" user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></commit-status>
+        <!-- unfortunately, core scaffold doesn't allow nested nav/tools. -->
+        <div tool>
+          <more-route-switch>
+            <template is="more-route-if" name="commit-details">
+              <commit-header commit="{{params}}"></commit-header>
+            </template>
+            <template is="more-route-if" name="root">
+              Polymer CI
+            </template>
+          </more-route-switch>
+        </div>
+
+        <more-route-switch>
+          <template is="more-route-if" name="commit-details">
+            <commit-status user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></commit-status>
+          </template>
+          <template is="more-route-if" name="root">
+            <div class="intro-info" fit center paper-font-style="display-2">
+              ☚ Choose a test to monitor
+            </div>
+          </template>
+        </more-route-switch>
+
       </core-scaffold>
     </template>
   </body>

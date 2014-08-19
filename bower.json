@@ -12,6 +12,9 @@
     "core-toolbar": "Polymer/core-toolbar#master",
     "core-tooltip": "Polymer/core-tooltip#master",
     "firebase-element": "Polymer/firebase-element#master",
+    "more-filters": "Polymore/more-filters#master",
+    "more-param": "Polymore/more-param#master",
+    "more-routing": "Polymore/more-routing#master",
     "paper-tabs": "Polymer/paper-tabs#master",
     "paper-theme-experiment": "nevir/paper-theme-experiment#master",
     "polymer": "Polymer/polymer#master"

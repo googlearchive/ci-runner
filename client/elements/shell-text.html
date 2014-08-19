@@ -1,5 +1,8 @@
 <link rel="import" href="../../components/polymer/polymer.html">
 
+<!--
+TODO(nevir): Extract this out to labs.
+-->
 <polymer-element name="shell-text">
   <template>
     <style>
@@ -121,6 +124,7 @@
 
       textChanged: function() {
         this.clearSpans();
+        if (!this.text) return;
         var regex = /\033\[([\d;]+)m/g;
         var span  = document.createElement('span');
         var match;

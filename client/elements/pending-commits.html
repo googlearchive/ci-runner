@@ -1,24 +1,32 @@
-<link rel="import" href="../../components/polymer/polymer.html">
-<link rel="import" href="../../components/firebase-element/firebase-element.html">
-<!-- <link rel="import" href="../../components/core-list/core-list.html"> -->
+<link rel="import" href="../components/firebase-element/firebase-element.html">
+<link rel="import" href="../components/more-param/more-param.html">
+<link rel="import" href="../components/more-routing/more-route.html">
+<link rel="import" href="../components/polymer/polymer.html">
 
 <link rel="import" href="pending-commit.html">
 
-<polymer-element name="pending-commits" attributes="firebaseApp user repo sha">
+<polymer-element name="pending-commits" attributes="firebaseApp" fit>
   <template>
     <style>
+      :host {
+        overflow: auto;
+      }
+
       pending-commit {
         cursor: pointer;
       }
     </style>
 
+    <more-route id="route" name="commit-details" params="{{params}}"></more-route>
+    <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/queue" data="{{commits}}" keys="{{keys}}"></firebase-element>
 
     <template repeat="{{key in keys}}">
+      <!-- TODO(nevir): Why can't we bind to params.foo? -->
       <pending-commit
         commit="{{commits[key]}}"
         firebaseApp="{{firebaseApp}}"
-        selected?="{{commitMatches(commits[key], user, repo, sha)}}"
+        selected?="{{commitMatches(commits[key], $.route.params.user, $.route.params.repo, $.route.params.sha)}}"
         on-tap="{{onItemSelected}}">
       </pending-commit>
     </template>
@@ -26,12 +34,6 @@
 
   <script>
     Polymer('pending-commits', {
-      observe: {
-        user: 'updateSelection',
-        repo: 'updateSelection',
-        sha:  'updateSelection',
-      },
-
       queueKeysChanged: function() {
         var seen = {};
         this.commits = [];
@@ -51,14 +53,11 @@
       },
 
       onItemSelected: function(event, index, node) {
-        var commit = node.commit;
-        this.user = commit.user;
-        this.repo = commit.repo;
-        this.sha  = commit.sha;
+        this.$.route.navigateTo(node.commit);
       },
 
-      commitMatches: function(commit, user, repo, sha) {
-        return commit.user === user && commit.repo === repo && commit.sha === sha;
+      commitMatches: function(commit) {
+        return this.$.route.isCurrentUrl(commit);
       },
     });
   </script>

@@ -1,10 +1,12 @@
-<link rel="import" href="../../components/polymer/polymer.html">
-<link rel="import" href="../../components/firebase-element/firebase-element.html">
-<link rel="import" href="../../components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../../components/core-toolbar/core-toolbar.html">
-<link rel="import" href="../../components/core-tooltip/core-tooltip.html">
-<link rel="import" href="../../components/core-splitter/core-splitter.html">
-<link rel="import" href="../log-entries/log-entries.html">
+<link rel="import" href="../components/core-splitter/core-splitter.html">
+<link rel="import" href="../components/core-toolbar/core-toolbar.html">
+<link rel="import" href="../components/core-tooltip/core-tooltip.html">
+<link rel="import" href="../components/firebase-element/firebase-element.html">
+<link rel="import" href="../components/more-param/more-param.html">
+<link rel="import" href="../components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../components/polymer/polymer.html">
+
+<link rel="import" href="log-entries.html">
 
 <polymer-element name="commit-status" layout vertical fit attributes="firebaseApp user repo sha">
   <template>
@@ -49,6 +51,12 @@
       }
     </style>
 
+    <!--
+    TODO(nevir): It sucks to have to redefine this everywhere. I'd like to be
+    able to just pass it in - but template contexts don't inherit, so that's
+    getting rather painful.
+    -->
+    <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/platforms"
       data="{{results}}" on-data-change="{{resultsChanged}}"></firebase-element>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}"

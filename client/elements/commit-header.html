@@ -1,0 +1,35 @@
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/more-filters/more-filters.html">
+
+<polymer-element name="commit-header" attributes="commit" noscript>
+  <template>
+    <style>
+      :host {
+        font-size: 0.7em;
+      }
+
+      a {
+        color: white;
+        text-decoration: none;
+      }
+
+      .user img {
+        display: inline-block;
+        height: 28px;
+        vertical-align: middle;
+        width: 28px;
+      }
+    </style>
+
+    <span class="user">
+      <img src="https://avatars.githubusercontent.com/{{commit.user}}?size=56">
+      <a href="https://github.com/{{commit.user}}">{{commit.user}}</a>
+    </span>
+    /
+    <a href="https://github.com/{{commit.user}}/{{commit.repo}}" class="repo">{{commit.repo}}</a>
+
+    @<a href="https://github.com/{{commit.user}}/{{commit.repo}}/commit/{{commit.sha}}" class="sha">
+      {{commit.sha | substr(0,6)}}
+    </a>
+  </template>
+</polymer-element>

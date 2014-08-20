@@ -3,15 +3,17 @@
 var chalk      = require('chalk');
 var express    = require('express');
 var Firebase   = require('firebase');
+var GHWebHooks = require('github-webhook-handler');
 var GitHub     = require('github');
 var os         = require('os');
-var GHWebHooks = require('github-webhook-handler');
+var path       = require('path');
 
-var Commit     = require('./lib/commit');
-var Log        = require('./lib/log');
-var protect    = require('./lib/protect');
-var Queue      = require('./lib/queue');
-var TestRunner = require('./lib/testrunner');
+var Commit       = require('./lib/commit');
+var Log          = require('./lib/log');
+var protect      = require('./lib/protect');
+var Queue        = require('./lib/queue');
+var RepoRegistry = require('./lib/reporegistry');
+var TestRunner   = require('./lib/testrunner');
 
 // Available Configuration
 
@@ -58,9 +60,10 @@ fbRoot.auth(FIREBASE_SECRET);
 var github = new GitHub({version: '3.0.0'});
 github.authenticate({type: 'oauth', token: GITHUB_OAUTH_TOKEN});
 
-var app    = express();
-var queue  = new Queue(processor, fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
-var hooks  = new GHWebHooks({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
+var repos = new RepoRegistry(path.join(__dirname, 'commits'));
+var app   = express();
+var queue = new Queue(processor, fbRoot.child('queue'), WORKER_ID, CONCURRENCY, JITTER, ITEM_TIMEOUT);
+var hooks = new GHWebHooks({path: GITHUB_WEBHOOK_PATH, secret: GITHUB_WEBHOOK_SECRET});
 
 // Commit Processor
 
@@ -68,7 +71,7 @@ function processor(commit, done) {
   // TODO(nevir): synchronize status output too!
   var fbStatus = fbRoot.child('status').child(commit.key);
   var log      = new Log(process.stdout, commit, fbStatus.child('log'));
-  var runner   = new TestRunner(commit, fbStatus, github, log);
+  var runner   = new TestRunner(commit, fbStatus, github, repos, log);
   protect(function() {
     runner.run(done);
   }, function(error) {

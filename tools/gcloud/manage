@@ -71,6 +71,8 @@ run_create() {
             value: $JITTER
           - name: ITEM_TIMEOUT
             value: $ITEM_TIMEOUT
+          - name: VALID_RUNNERS
+            value: $VALID_RUNNERS
 
           - name: GITHUB_OAUTH_TOKEN
             value: $GITHUB_OAUTH_TOKEN

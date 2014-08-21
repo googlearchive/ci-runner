@@ -1,75 +1,77 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <script src="components/platform/platform.js"></script>
-    <link rel="import" href="components/paper-theme-experiment/paper-theme.html">
-    <link rel="import" href="components/paper-theme-experiment/paper-theme-style.html">
-    <link rel="import" href="components/core-scaffold/core-scaffold.html">
-    <link rel="import" href="components/more-routing/more-route-if.html">
-    <link rel="import" href="components/more-routing/more-route-switch.html">
+  <script src="components/platform/platform.js"></script>
+  <link rel="import" href="components/paper-theme-experiment/paper-theme.html">
+  <link rel="import" href="components/paper-theme-experiment/paper-theme-style.html">
+  <link rel="import" href="components/core-scaffold/core-scaffold.html">
+  <link rel="import" href="components/more-routing/more-route-if.html">
+  <link rel="import" href="components/more-routing/more-route-switch.html">
 
-    <link rel="import" href="routes.html">
+  <link rel="import" href="routes.html">
 
-    <link rel="import" href="elements/commit-header.html">
-    <link rel="import" href="elements/commit-status.html">
-    <link rel="import" href="elements/pending-commits.html">
+  <link rel="import" href="elements/commit-header.html">
+  <link rel="import" href="elements/commit-status.html">
+  <link rel="import" href="elements/pending-commits.html">
 
-    <paper-theme primaryColor="#3f51b5" accentColor="#ff4081"></paper-theme>
+  <paper-theme primaryColor="#3f51b5" accentColor="#ff4081"></paper-theme>
 
-    <paper-theme-style key="commit-status" type="element">
-      .toolbar, .tabs {
-        background-color: {{paper.primaryColor}};
-        color: white;
-      }
-    </paper-theme-style>
+  <paper-theme-style key="commit-status" type="element">
+    .toolbar, .tabs {
+      background-color: {{paper.primaryColor}};
+      color: white;
+    }
+  </paper-theme-style>
 
-    <style>
-      body, html {
-        height: 100%;
-        margin: 0;
-      }
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
 
-      .intro-info {
-        padding: 20px;
-      }
-    </style>
-  </head>
-  <body>
-    <template is="auto-binding">
-      <core-scaffold responsiveWidth="900px">
-        <nav>
-          <pending-commits></pending-commits>
-        </nav>
+    .intro-info {
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <template is="auto-binding">
+    <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
 
-        <!-- unfortunately, core scaffold doesn't allow nested nav/tools. -->
-        <div tool>
-          <more-route-switch>
-            <template is="more-route-if" name="commit-details">
-              <commit-header commit="{{params}}"></commit-header>
-            </template>
-            <template is="more-route-if" name="root">
-              Polymer CI
-            </template>
-          </more-route-switch>
-        </div>
+    <core-scaffold responsiveWidth="900px">
+      <nav>
+        <pending-commits firebaseApp="{{firebaseApp}}"></pending-commits>
+      </nav>
 
+      <!-- unfortunately, core scaffold doesn't allow nested nav/tools. -->
+      <div tool>
         <more-route-switch>
           <template is="more-route-if" name="commit-details">
-            <commit-status user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></commit-status>
+            <commit-header commit="{{params}}"></commit-header>
           </template>
           <template is="more-route-if" name="root">
-            <div class="intro-info" fit center paper-font-style="display-2">
-              ☚ Choose a test to monitor
-            </div>
+            Polymer CI
           </template>
         </more-route-switch>
+      </div>
 
-      </core-scaffold>
-    </template>
-  </body>
+      <more-route-switch>
+        <template is="more-route-if" name="commit-details">
+          <commit-status firebaseApp="{{firebaseApp}}" user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></commit-status>
+        </template>
+        <template is="more-route-if" name="root">
+          <div class="intro-info" fit center paper-font-style="display-2">
+            ☚ Choose a test to monitor
+          </div>
+        </template>
+      </more-route-switch>
+
+    </core-scaffold>
+  </template>
+</body>
 </html>

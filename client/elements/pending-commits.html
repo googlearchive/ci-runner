@@ -18,7 +18,6 @@
     </style>
 
     <more-route id="route" name="commit-details" params="{{params}}"></more-route>
-    <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/queue" data="{{commits}}" keys="{{keys}}"></firebase-element>
 
     <template repeat="{{key in keys}}">

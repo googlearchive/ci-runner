@@ -3,32 +3,16 @@
 <link rel="import" href="../components/core-tooltip/core-tooltip.html">
 <link rel="import" href="../components/firebase-element/firebase-element.html">
 <link rel="import" href="../components/more-param/more-param.html">
+<link rel="import" href="../components/more-routing/more-route-if.html">
 <link rel="import" href="../components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../components/polymer/polymer.html">
 
 <link rel="import" href="log-entries.html">
+<link rel="import" href="test-results.html">
 
 <polymer-element name="commit-status" layout vertical fit attributes="firebaseApp user repo sha">
   <template>
     <style>
-      .pass {
-        background-color: #2baf2b;
-      }
-      .fail {
-        background-color: #e84e40;
-      }
-
-      .tab > * {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        padding: 0 5px;
-        text-align: center;
-      }
-      .tab .result {
-        font-size: 0.8em;
-      }
-
       #content {
         overflow: auto;
       }
@@ -51,62 +35,40 @@
       }
     </style>
 
-    <!--
-    TODO(nevir): It sucks to have to redefine this everywhere. I'd like to be
-    able to just pass it in - but template contexts don't inherit, so that's
-    getting rather painful.
-    -->
-    <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
-    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/platforms"
-      data="{{results}}" on-data-change="{{resultsChanged}}"></firebase-element>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}"
       data="{{status}}" on-data-change="{{resultsChanged}}"></firebase-element>
 
-    <paper-tabs selected="{{selected}}" class="tabs">
-      <paper-tab class="tab log">
-        Run Log
-      </paper-tab>
-      <template repeat="{{resultsArray}}">
-        <paper-tab class="tab {{ {fail: !passed, pass: passed} | tokenList }}">
-          <core-tooltip label="{{platform}}">
-            <div>{{platform}}</div>
-          </core-tooltip>
-          <div class="result">{{passed ? 'Passed' : 'Failed'}}</div>
-        </paper-tab>
-      </template>
+    <!-- TODO(nevir): Using routing this way is really awkward. -->
+    <more-route id="rLog"   on-more-route-active="{{onRouteActive}}" route="/log"></more-route>
+    <more-route id="rTests" on-more-route-active="{{onRouteActive}}" route="/"></more-route>
+
+    <paper-tabs id="tabs" selectedItem="{{activeTab}}" class="tabs">
+      <paper-tab ref="rLog">Run Log</paper-tab>
+      <paper-tab ref="rTests">Tests</paper-tab>
     </paper-tabs>
 
-    <section id="content" flex>
-      <log-entries entries="{{status.log}}" hidden?="{{selected != 0}}"></log-entries>
-
-      <div layout horizontal hidden?="{{selected == 0 || !resultsArray[selected]}}">
-        <div class="info">
-          <template repeat="{{resultsArray[selected].reports}}">
-            <p style="font-weight:bold;">{{name}}</p>
-            <em>Message</em>
-            <code><pre>{{message}}</pre></code>
-            <div hidden?="{{!stack}}">
-              <em>Stack</em>
-              <code><pre>{{stack}}</pre></code>
-            </div>
-            <hr>
-          </template>
-        </div>
-        <core-splitter direction="left"></core-splitter>
-        <div class="image" flex style="background-image:url({{resultsArray[selected].image}});"></div>
-      </div>
-    </section>
+    <more-route-switch id="content" on-more-route-changed="{{onRouteChanged}}" flex>
+      <template is="more-route-if" route="/log">
+        <log-entries entries="{{status.log}}"></log-entries>
+      </template>
+      <template is="more-route-if" route="/">
+        <test-results tests="{{status.tests}}"></test-results>
+      </template>
+    </more-route-switch>
   </template>
+
   <script>
-    Polymer({
-      selected: 0,
-      resultsChanged: function() {
-        var results = [];
-        for (var i in this.results) {
-          results.push(this.results[i]);
-        }
-        this.resultsArray = results;
-      }
+    Polymer('commit-status', {
+      activeTabChanged: function(prevTab, tab) {
+        // TODO(nevir): This is awkward.
+        this.$[tab.getAttribute('ref')].navigateTo(
+          {user: this.user, repo: this.repo, sha: this.sha}
+        );
+      },
+
+      onRouteChanged: function(event, detail) {
+        this.$.tabs.selected = detail.index;
+      },
     });
   </script>
 </polymer-element>

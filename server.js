@@ -15,7 +15,11 @@ var Queue        = require('./lib/queue');
 var RepoRegistry = require('./lib/reporegistry');
 var TestRunner   = require('./lib/testrunner');
 
+// TODO(nevir): Refactor into a configuration object.
+
 // Available Configuration
+//
+// IF YOU ADD A CONFIGURATION VALUE, BE SURE TO ADD IT TO `tools/gcloud/manage`!
 
 // Port to listen to HTTP traffic on.
 var PORT = process.env.PORT || 3000;
@@ -28,6 +32,8 @@ var CONCURRENCY = parseInt(process.env.CONCURRENCY) || 10;
 var JITTER = process.env.JITTER || 250;
 // Maximum number of milliseconds for an item to be claimed before it times out.
 var ITEM_TIMEOUT = process.env.ITEM_TIMEOUT || 1800000; // 30 minutes.
+// List of allowed test runners.
+var VALID_RUNNERS = (process.env.VALID_RUNNERS || 'gulp-web-component-tester').split(',');
 
 // OAuth token used when posting statuses/comments to GitHub.
 // See https://github.com/settings/applications
@@ -37,7 +43,7 @@ var GITHUB_WEBHOOK_PATH = process.env.GITHUB_WEBHOOK_PATH || '/github';
 // The secret registered for the webhook; invalid requests will be rejected.
 var GITHUB_WEBHOOK_SECRET = process.env.GITHUB_WEBHOOK_SECRET;
 // A whitelist of refs that pushes are accepted for.
-var VALID_PUSH_BRANCHES = (process.env.VALID_PUSH_BRANCHES || 'master').split(' ');
+var VALID_PUSH_BRANCHES = (process.env.VALID_PUSH_BRANCHES || 'master').split(',');
 
 // Your Sauce Labs username.
 var SAUCE_USERNAME = process.env.SAUCE_USERNAME;
@@ -71,7 +77,7 @@ function processor(commit, done) {
   // TODO(nevir): synchronize status output too!
   var fbStatus = fbRoot.child('status').child(commit.key);
   var log      = new Log(process.stdout, commit, fbStatus.child('log'));
-  var runner   = new TestRunner(commit, fbStatus, github, repos, log);
+  var runner   = new TestRunner(commit, fbStatus, github, repos, VALID_RUNNERS, log);
   protect(function() {
     runner.run(done);
   }, function(error) {

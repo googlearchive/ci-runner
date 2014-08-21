@@ -15,6 +15,8 @@ var Queue        = require('./lib/queue');
 var RepoRegistry = require('./lib/reporegistry');
 var TestRunner   = require('./lib/testrunner');
 
+// TODO(nevir): Refactor into a configuration object.
+
 // Available Configuration
 //
 // IF YOU ADD A CONFIGURATION VALUE, BE SURE TO ADD IT TO `tools/gcloud/manage`!
@@ -31,7 +33,7 @@ var JITTER = process.env.JITTER || 250;
 // Maximum number of milliseconds for an item to be claimed before it times out.
 var ITEM_TIMEOUT = process.env.ITEM_TIMEOUT || 1800000; // 30 minutes.
 // List of allowed test runners.
-var VALID_RUNNERS = (process.env.VALID_RUNNERS || 'polymer-test-runner').split(',');
+var VALID_RUNNERS = (process.env.VALID_RUNNERS || 'gulp-web-component-tester').split(',');
 
 // OAuth token used when posting statuses/comments to GitHub.
 // See https://github.com/settings/applications

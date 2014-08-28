@@ -5,6 +5,7 @@ var express    = require('express');
 var Firebase   = require('firebase');
 var GHWebHooks = require('github-webhook-handler');
 var GitHub     = require('github');
+var http       = require('http');
 var path       = require('path');
 
 var Commit       = require('./lib/commit');
@@ -19,6 +20,9 @@ var TestRunner   = require('./lib/testrunner');
 
 // We may not be in a real TTY, but we _really_ like colors.
 chalk.enabled = true;
+
+// We open a crap ton of concurrent requests to Sauce.
+http.globalAgent.maxSockets = 250;
 
 var config = new Config(process.env);
 

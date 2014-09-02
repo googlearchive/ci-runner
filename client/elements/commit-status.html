@@ -49,7 +49,7 @@
 
     <more-route-switch id="content" on-more-route-changed="{{onRouteChanged}}" flex>
       <template is="more-route-if" route="/log">
-        <log-entries entries="{{status.log}}"></log-entries>
+        <log-entries firebaseRoot="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/log"></log-entries>
       </template>
       <template is="more-route-if" route="/">
         <test-results tests="{{status.tests}}"></test-results>

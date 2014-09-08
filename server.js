@@ -54,7 +54,7 @@ console.log('Establishing Sauce tunnel');
 config.sauce.tunnelIdentifier = uuid.v4();
 sauceConnect(config.sauce, function(error, tunnel) {
   if (error) throw error;
-  console.log('Sauce tunnel established');
+  console.log('Sauce tunnel established. Tunnel id:', config.sauce.tunnelIdentifier);
 
   // Commit Processor (Depends on Sauce)
 

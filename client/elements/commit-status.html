@@ -10,40 +10,29 @@
 <link rel="import" href="../components/core-splitter/core-splitter.html">
 <link rel="import" href="../components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../components/core-tooltip/core-tooltip.html">
-<link rel="import" href="../components/firebase-element/firebase-element.html">
 <link rel="import" href="../components/more-param/more-param.html">
 <link rel="import" href="../components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/more-routing/more-route-switch.html">
 
+<link rel="import" href="browser-status.html">
 <link rel="import" href="log-entries.html">
+<link rel="import" href="test-results.html">
 
-<polymer-element name="commit-status" layout vertical fit attributes="firebaseApp user repo sha">
+<polymer-element name="commit-status" layout vertical fit attributes="firebaseRoot">
   <template>
+
     <style>
-      .pass {
-        background-color: #2baf2b;
-      }
-      .fail {
-        background-color: #e84e40;
-      }
-
-      .tab > * {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        padding: 0 5px;
-        text-align: center;
-      }
-      .tab .result {
-        font-size: 0.8em;
-      }
-
       #content {
+        display: block;
         overflow: auto;
       }
 
       log-entries {
         margin-right: 1em;
+      }
+      test-results {
+        padding: 1em;
       }
 
       .image {
@@ -60,61 +49,38 @@
       }
     </style>
 
-    <!--
-    TODO(nevir): It sucks to have to redefine this everywhere. I'd like to be
-    able to just pass it in - but template contexts don't inherit, so that's
-    getting rather painful.
-    -->
-    <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
-    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/platforms"
-      data="{{results}}" on-data-change="{{resultsChanged}}"></firebase-element>
-    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}"
-      data="{{status}}" on-data-change="{{resultsChanged}}"></firebase-element>
-
-    <paper-tabs selected="{{selected}}" class="tabs">
-      <paper-tab class="tab log">
-        Run Log
-      </paper-tab>
-      <template repeat="{{resultsArray}}">
-        <paper-tab class="tab {{ {fail: !passed, pass: passed} | tokenList }}">
-          <core-tooltip label="{{platform}}">
-            <div>{{platform}}</div>
-          </core-tooltip>
-          <div class="result">{{passed ? 'Passed' : 'Failed'}}</div>
-        </paper-tab>
-      </template>
+    <paper-tabs id="tabs" selectedIndex="{{activeRoute}}" class="tabs">
+      <paper-tab>Run Log</paper-tab>
+      <paper-tab>Tests</paper-tab>
     </paper-tabs>
 
-    <section id="content" flex>
-      <log-entries entries="{{status.log}}" hidden?="{{selected != 0}}"></log-entries>
+    <more-route-switch id="content" selectedIndex="{{activeRoute}}" flex>
 
-      <div layout horizontal hidden?="{{selected == 0 || !resultsArray[selected]}}">
-        <div class="info">
-          <template repeat="{{resultsArray[selected].reports}}">
-            <p style="font-weight:bold;">{{name}}</p>
-            <em>Message</em>
-            <code><pre>{{message}}</pre></code>
-            <div hidden?="{{!stack}}">
-              <em>Stack</em>
-              <code><pre>{{stack}}</pre></code>
-            </div>
-            <hr>
-          </template>
-        </div>
-        <core-splitter direction="left"></core-splitter>
-        <div class="image" flex style="background-image:url({{resultsArray[selected].image}});"></div>
-      </div>
-    </section>
+      <template when-route="/log">
+        <log-entries firebaseRoot="{{firebaseRoot}}/log" on-entry-added="{{_onEntryAdded}}"></log-entries>
+      </template>
+
+      <template else>
+        <section layout horizontal>
+          <test-results flex firebaseRoot="{{firebaseRoot}}/tests"></test-results>
+          <browser-status firebaseRoot="{{firebaseRoot}}/browsers"></browser-status>
+        </section>
+      </template>
+
+    </more-route-switch>
+
   </template>
+
   <script>
-    Polymer({
-      selected: 0,
-      resultsChanged: function() {
-        var results = [];
-        for (var i in this.results) {
-          results.push(this.results[i]);
-        }
-        this.resultsArray = results;
+    Polymer('commit-status', {
+      // TODO(nevir): Not if you've scrolled manually.
+      _onEntryAdded: function(event) {
+        if (this._scrollingThisFrame) return;
+        this._scrollingThisFrame = true;
+        requestAnimationFrame(function() {
+          this._scrollingThisFrame = false;
+          this.$.content.scrollTop = this.$.content.scrollHeight;
+        }.bind(this));
       }
     });
   </script>

@@ -15,8 +15,12 @@ TODO(nevir): Extract this out to labs.
 <polymer-element name="shell-text">
   <template>
     <style>
+      :host {
+        min-height: 1em;
+      }
+
       span {
-        white-space: pre;
+        white-space: pre-wrap;
       }
 
       .bold {
@@ -86,7 +90,6 @@ TODO(nevir): Extract this out to labs.
         background-color: #fffff;
       }
     </style>
-    &#8203;
     <span id="text"></span>
   </template>
 

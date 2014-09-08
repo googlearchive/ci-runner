@@ -7,8 +7,9 @@
     Code distributed by Google as part of the polymer project is also
     subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
-<link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/core-collapse/core-collapse.html">
+<link rel="import" href="../components/firebase-element/firebase-import.html">
+<link rel="import" href="../components/polymer/polymer.html">
 
 <link rel="import" href="shell-text.html">
 
@@ -42,56 +43,108 @@
       }
     </style>
 
-    <template repeat="{{key in keys}}">
-      <div>
-        <shell-text
-          text="{{entries[key].line}}"
-          class="line {{entries[key].style}}"
-          on-tap="{{toggleChildren}}">
-        </shell-text>
+    <template id="entryTemplate">
+      <shell-text id="{{id}}" text="{{entry.line}}" class="line {{entry.style}}"></shell-text>
+    </template>
 
-        <template if="{{entries[key].children}}">
-          <core-collapse opened>
-            <log-entries entries="{{entries[key].children}}" class="children"></log-entries>
-          </core-collapse>
-        </template>
-      </div>
+    <template id="groupTemplate">
+      <core-collapse for="{{entryId}}" opened>
+        <log-entries firebaseRoot="{{firebaseRoot}}"></log-entries>
+      </core-collapse>
     </template>
   </template>
 
   <script>
     Polymer('log-entries', {
       publish: {
-        entries: {value: {}},
-        showChildren: {value: true, reflect: true}
+        // We DO NOT support changing this after `ready`!
+        firebaseRoot: '',
+        scrollsToBottom: false,
       },
 
-      entriesChanged: function() {
-        this.info = {};
-        this.openEntryObserver(); // TODO(nevir): close on detach properly.
-        this.updateEntries();
+      attached: function() {
+        this._firebase = new Firebase(this.firebaseRoot);
+        // Note that we assume that all entry text is immutable, and only ever
+        // appended. Thus, no move tracking. Change tracking is only to detect
+        // appearance of children.
+        this._firebase.on('child_added',   this._onChildAdded.bind(this));
+        this._firebase.on('child_changed', this._onChildChanged.bind(this));
+        this._firebase.on('child_removed', this._onChildRemoved.bind(this));
       },
 
-      openEntryObserver: function() {
-        if (this.entryObserver) this.closeEntryObserver();
-        if (!this.entries) return;
-        this.entryObserver = new ObjectObserver(this.entries);
-        this.entryObserver.open(this.updateEntries.bind(this));
+      detached: function() {
+        this._firebase.off();
+        this._firebase = null;
       },
 
-      closeEntryObserver: function() {
-        this.entryObserver.close();
-        this.entryObserver = null;
+      _onChildAdded: function(snapshot, prevEntryId) {
+        var entryNode = this._stampEntryNode(snapshot);
+        this._insertAfterEntry(entryNode, prevEntryId);
+
+        if (snapshot.val().children) {
+          this._insertAfterEntry(this._stampGroup(snapshot), snapshot.name());
+        }
+
+        this.fire('entry-added', entryNode);
       },
 
-      updateEntries: function() {
-        this.keys = Object.keys(this.entries || {});
+      _onChildChanged: function(snapshot) {
+        var group = this._groupForId(snapshot.name());
+        if (!snapshot.val().children || group) return;
+        this._insertAfterEntry(this._stampGroup(snapshot), snapshot.name());
       },
 
-      toggleChildren: function(event, index, node) {
-        var collapse = node.parentNode.querySelector('core-collapse');
-        if (!collapse) return;
-        collapse.toggle();
+      _onChildRemoved: function(snapshot) {
+        this.shadowRoot.getElementById(snapshot.name()).remove();
+        var group = this._groupForId(snapshot.name());
+        if (group) group.remove();
+      },
+
+      _stampEntryNode: function(snapshot) {
+        var model = {
+          id:    snapshot.name(),
+          entry: snapshot.val(),
+        };
+        var fragment = this.$.entryTemplate.createInstance(model, this.bindingDelegate);
+        var node = fragment.children[0];
+
+        Polymer.addEventListener(node, 'tap', this._onToggleChildren.bind(this));
+
+        return node;
+      },
+
+      _stampGroup: function(snapshot) {
+        var model = {
+          entryId:      snapshot.name(),
+          firebaseRoot: this.firebaseRoot + '/' + snapshot.name() + '/children',
+        };
+        var fragment = this.$.groupTemplate.createInstance(model, this.bindingDelegate);
+        return fragment.children[0];
+      },
+
+      _onToggleChildren: function(event) {
+        var group = this._groupForId(event.target.id);
+        if (!group) return;
+        group.toggle();
+      },
+
+      _groupForId: function(id) {
+        return this.shadowRoot.querySelector('[for="' + id + '"]');
+      },
+
+      _insertAfterEntry: function(node, prevId) {
+        var entryNode = this.shadowRoot.getElementById(prevId);
+        if (!entryNode) {
+          this.shadowRoot.appendChild(node);
+          return;
+        }
+
+        if (entryNode.nextSibling && entryNode.nextSibling.getAttribute('for') == prevId) {
+          // After the group
+          this.shadowRoot.insertBefore(node, entryNode.nextSibling.nextSibling);
+        } else {
+          this.shadowRoot.insertBefore(node, entryNode.nextSibling);
+        }
       }
     });
   </script>

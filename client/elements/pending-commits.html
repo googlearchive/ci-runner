@@ -26,16 +26,14 @@
       }
     </style>
 
-    <more-route id="route" name="commit-details" params="{{params}}"></more-route>
-    <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
+    <more-route name="commit-details" params="{{params}}" route="{{commitDetailsRoute}}"></more-route>
     <firebase-element location="https://{{firebaseApp}}.firebaseio.com/queue" data="{{commits}}" keys="{{keys}}"></firebase-element>
 
     <template repeat="{{key in keys}}">
-      <!-- TODO(nevir): Why can't we bind to params.foo? -->
       <pending-commit
         commit="{{commits[key]}}"
         firebaseApp="{{firebaseApp}}"
-        selected?="{{commitMatches(commits[key], $.route.params.user, $.route.params.repo, $.route.params.sha)}}"
+        selected?="{{isCurrentUrl(commitDetailsRoute, commits[key])}}"
         on-tap="{{onItemSelected}}">
       </pending-commit>
     </template>
@@ -62,11 +60,7 @@
       },
 
       onItemSelected: function(event, index, node) {
-        this.$.route.navigateTo(node.commit);
-      },
-
-      commitMatches: function(commit) {
-        return this.$.route.isCurrentUrl(commit);
+        this.commitDetailsRoute.navigateTo(node.commit);
       },
     });
   </script>

@@ -8,6 +8,9 @@
     subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <link rel="import" href="components/more-routing/more-route.html">
+<link rel="import" href="components/more-routing/more-routing.html">
 
-<more-route name="commit-details" route="/:user/:repo/:sha"></more-route>
-<more-route name="root"           route="/"></more-route>
+<more-routing driver="hash"></more-routing>
+
+<more-route name="commit-details" path="/:user/:repo/:sha"></more-route>
+<more-route name="root"           path="/"></more-route>

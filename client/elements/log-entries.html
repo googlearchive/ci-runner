@@ -50,6 +50,7 @@
       publish: {
         // We DO NOT support changing this after `ready`!
         firebaseRoot: '',
+        scrollsToBottom: false,
       },
 
       attached: function() {
@@ -74,6 +75,8 @@
         if (snapshot.val().children) {
           this._insertAfterEntry(this._stampGroup(snapshot), snapshot.name());
         }
+
+        this.fire('entry-added', entryNode);
       },
 
       _onChildChanged: function(snapshot) {

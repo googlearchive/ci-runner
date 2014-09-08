@@ -1,19 +1,20 @@
 <link rel="import" href="../components/core-splitter/core-splitter.html">
 <link rel="import" href="../components/core-toolbar/core-toolbar.html">
 <link rel="import" href="../components/core-tooltip/core-tooltip.html">
-<link rel="import" href="../components/firebase-element/firebase-element.html">
 <link rel="import" href="../components/more-param/more-param.html">
-<link rel="import" href="../components/more-routing/more-route-if.html">
 <link rel="import" href="../components/paper-tabs/paper-tabs.html">
 <link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/more-routing/more-route-switch.html">
 
 <link rel="import" href="log-entries.html">
 <link rel="import" href="test-results.html">
 
 <polymer-element name="commit-status" layout vertical fit attributes="firebaseApp user repo sha">
   <template>
+
     <style>
       #content {
+        display: block;
         overflow: auto;
       }
 
@@ -35,40 +36,36 @@
       }
     </style>
 
-    <firebase-element location="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}"
-      data="{{status}}" on-data-change="{{resultsChanged}}"></firebase-element>
-
-    <!-- TODO(nevir): Using routing this way is really awkward. -->
-    <more-route id="rLog"   on-more-route-active="{{onRouteActive}}" route="/log"></more-route>
-    <more-route id="rTests" on-more-route-active="{{onRouteActive}}" route="/"></more-route>
-
-    <paper-tabs id="tabs" selectedItem="{{activeTab}}" class="tabs">
-      <paper-tab ref="rLog">Run Log</paper-tab>
-      <paper-tab ref="rTests">Tests</paper-tab>
+    <paper-tabs id="tabs" selectedIndex="{{activeRoute}}" class="tabs">
+      <paper-tab>Run Log</paper-tab>
+      <paper-tab>Tests</paper-tab>
     </paper-tabs>
 
-    <more-route-switch id="content" on-more-route-changed="{{onRouteChanged}}" flex>
-      <template is="more-route-if" route="/log">
-        <log-entries firebaseRoot="https://{{firebaseApp}}.firebaseio.com/status/{{user}}/{{repo}}/{{sha}}/log"></log-entries>
+    <more-route-switch id="content" selectedIndex="{{activeRoute}}" flex>
+      <template when-route="/log">
+        <log-entries
+            firebaseRoot="https://{{firebaseApp}}.firebaseio.com/status/{{params.user}}/{{params.repo}}/{{params.sha}}/log"
+            on-entry-added="{{_onEntryAdded}}">
+        </log-entries>
       </template>
-      <template is="more-route-if" route="/">
-        <test-results tests="{{status.tests}}"></test-results>
+      <template else>
+        <test-results firebaseRoot="https://{{firebaseApp}}.firebaseio.com/status/{{params.user}}/{{params.repo}}/{{params.sha}}/log"></test-results>
       </template>
     </more-route-switch>
+
   </template>
 
   <script>
     Polymer('commit-status', {
-      activeTabChanged: function(prevTab, tab) {
-        // TODO(nevir): This is awkward.
-        this.$[tab.getAttribute('ref')].navigateTo(
-          {user: this.user, repo: this.repo, sha: this.sha}
-        );
-      },
-
-      onRouteChanged: function(event, detail) {
-        this.$.tabs.selected = detail.index;
-      },
+      // TODO(nevir): Not if you've scrolled manually.
+      _onEntryAdded: function(event) {
+        if (this._scrollingThisFrame) return;
+        this._scrollingThisFrame = true;
+        requestAnimationFrame(function() {
+          this._scrollingThisFrame = false;
+          this.$.content.scrollTop = this.$.content.scrollHeight;
+        }.bind(this));
+      }
     });
   </script>
 </polymer-element>

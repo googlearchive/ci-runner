@@ -10,7 +10,6 @@
   <link rel="import" href="components/paper-theme-experiment/paper-theme.html">
   <link rel="import" href="components/paper-theme-experiment/paper-theme-style.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
-  <link rel="import" href="components/more-routing/more-route-if.html">
   <link rel="import" href="components/more-routing/more-route-switch.html">
 
   <link rel="import" href="routes.html">
@@ -48,23 +47,22 @@
         <pending-commits firebaseApp="{{firebaseApp}}"></pending-commits>
       </nav>
 
-      <!-- unfortunately, core scaffold doesn't allow nested nav/tools. -->
       <div tool>
-        <more-route-switch>
-          <template is="more-route-if" name="commit-details">
+        <more-route-switch id="header">
+          <template when-route="commit-details">
             <commit-header commit="{{params}}"></commit-header>
           </template>
-          <template is="more-route-if" name="root">
+          <template when-route="root">
             Polymer CI
           </template>
         </more-route-switch>
       </div>
 
-      <more-route-switch>
-        <template is="more-route-if" name="commit-details">
+      <more-route-switch id="body" routeContext>
+        <template when-route="commit-details">
           <commit-status firebaseApp="{{firebaseApp}}" user="{{params.user}}" repo="{{params.repo}}" sha="{{params.sha}}"></commit-status>
         </template>
-        <template is="more-route-if" name="root">
+        <template when-route="root">
           <div class="intro-info" fit center paper-font-style="display-2">
             ☚ Choose a test to monitor
           </div>

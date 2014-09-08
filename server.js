@@ -72,56 +72,56 @@ sauceConnect(config.sauce, function(error, tunnel) {
       done(error);
     });
   }
-});
 
-// Web Server
+  // Web Server
 
-console.log('server starting');
+  console.log('server starting');
 
-app.use(function(req, res, next){
-  console.log('%s %s', req.method, req.url);
-  next();
-});
+  app.use(function(req, res, next){
+    console.log('%s %s', req.method, req.url);
+    next();
+  });
 
-app.use(hooks);
+  app.use(hooks);
 
-app.get('/', function(req, res) {
-  res.send('CI Runner: https://github.com/PolymerLabs/ci-runner');
-});
+  app.get('/', function(req, res) {
+    res.send('CI Runner: https://github.com/PolymerLabs/ci-runner');
+  });
 
-hooks.on('push', function(event) {
-  console.log('Received GitHub push event');
+  hooks.on('push', function(event) {
+    console.log('Received GitHub push event');
 
-  var payload = event.payload;
-  var commit;
-  try {
-    commit = Commit.forPushEvent(payload);
-  } catch (error) {
-    console.log('Malformed push event:', error, '\n', payload);
-    return;
-  }
+    var payload = event.payload;
+    var commit;
+    try {
+      commit = Commit.forPushEvent(payload);
+    } catch (error) {
+      console.log('Malformed push event:', error, '\n', payload);
+      return;
+    }
 
-  if (VALID_PUSH_BRANCHES.indexOf(commit.branch) === -1) {
-    console.log('Push branch not in whitelist:', commit.branch);
-  } else {
+    if (VALID_PUSH_BRANCHES.indexOf(commit.branch) === -1) {
+      console.log('Push branch not in whitelist:', commit.branch);
+    } else {
+      queue.add(commit);
+    }
+  });
+
+  hooks.on('pull_request', function(event) {
+    console.log('Received GitHub pull_request event');
+
+    var payload = event.payload;
+    var commit;
+    try {
+      commit = Commit.forPullRequestEvent(payload);
+    } catch (error) {
+      console.log('Malformed push event:', error, '\n', payload);
+      return;
+    }
     queue.add(commit);
-  }
+  });
+
+  app.listen(config.worker.port);
+
+  console.log('server listening for requests');
 });
-
-hooks.on('pull_request', function(event) {
-  console.log('Received GitHub pull_request event');
-
-  var payload = event.payload;
-  var commit;
-  try {
-    commit = Commit.forPullRequestEvent(payload);
-  } catch (error) {
-    console.log('Malformed push event:', error, '\n', payload);
-    return;
-  }
-  queue.add(commit);
-});
-
-app.listen(config.worker.port);
-
-console.log('server listening for requests');

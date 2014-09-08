@@ -9,13 +9,15 @@
  */
 'use strict';
 
-var chalk      = require('chalk');
-var express    = require('express');
-var Firebase   = require('firebase');
-var GHWebHooks = require('github-webhook-handler');
-var GitHub     = require('github');
-var http       = require('http');
-var path       = require('path');
+var chalk        = require('chalk');
+var express      = require('express');
+var Firebase     = require('firebase');
+var GHWebHooks   = require('github-webhook-handler');
+var GitHub       = require('github');
+var http         = require('http');
+var path         = require('path');
+var sauceConnect = require('sauce-connect-launcher');
+var uuid         = require('uuid');
 
 var Commit       = require('./lib/commit');
 var Config       = require('./lib/config');
@@ -43,24 +45,34 @@ github.authenticate({type: 'oauth', token: config.github.oauthToken});
 
 var repos = new RepoRegistry(path.join(__dirname, 'commits'));
 var app   = express();
-var queue = new Queue(processor, fbRoot.child('queue'), config);
 var hooks = new GHWebHooks({path: config.github.webhookPath, secret: config.github.webhookSecret});
 
-// Commit Processor
+// Sauce Tunnel
 
-function processor(commit, done) {
-  // TODO(nevir): synchronize status output too!
-  var fbStatus = fbRoot.child('status').child(commit.key);
-  var log      = new Log(process.stdout, commit, fbStatus.child('log'));
-  var runner   = new TestRunner(commit, fbStatus, github, repos, config, log);
-  protect(function() {
-    runner.run(done);
-  }, function(error) {
-    log.fatal(error, 'CI runner internal error:');
-    runner.setCommitStatus('error', 'Internal Error');
-    done(error);
-  });
-}
+console.log('Establishing Sauce tunnel');
+
+config.sauce.tunnelIdentifier = uuid.v4();
+sauceConnect(config.sauce, function(error, tunnel) {
+  if (error) throw error;
+  console.log('Sauce tunnel established');
+
+  // Commit Processor (Depends on Sauce)
+
+  var queue = new Queue(processor, fbRoot.child('queue'), config);
+  function processor(commit, done) {
+    // TODO(nevir): synchronize status output too!
+    var fbStatus = fbRoot.child('status').child(commit.key);
+    var log      = new Log(process.stdout, commit, fbStatus.child('log'));
+    var runner   = new TestRunner(commit, fbStatus, github, repos, config, log);
+    protect(function() {
+      runner.run(done);
+    }, function(error) {
+      log.fatal(error, 'CI runner internal error:');
+      runner.setCommitStatus('error', 'Internal Error');
+      done(error);
+    });
+  }
+});
 
 // Web Server
 

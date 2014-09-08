@@ -1,0 +1,61 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../components/polymer/polymer.html">
+<link rel="import" href="../components/firebase-element/firebase-element.html">
+
+<polymer-element name="browser-status" noscript attributes="firebaseRoot">
+  <template>
+    <style>
+      :host {
+        border-left: 1px solid rgba(0,0,0,0.1);
+        background: rgba(0,0,0,0.015);
+      }
+
+      .browser {
+        padding: 4px 8px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+      }
+
+      .status-complete header {
+        opacity: 0.35;
+      }
+
+      .stats .failing {
+        font-weight: bold;
+        color: #e51c23;
+      }
+
+      .stats .pending {
+        font-weight: bold;
+        color: #e65100;
+      }
+    </style>
+
+    <firebase-element location="{{firebaseRoot}}" data="{{browsers}}" keys="{{keys}}"></firebase-element>
+
+    <template repeat="{{key in keys}}">
+      <template bind="{{browsers[key]}}">
+
+        <div class="browser status-{{status}}" title="{{status}}">
+          <header>{{name}} {{version}} ({{platform}})</header>
+          <div class="stats">
+            <template if="{{stats.failing}}">
+              <span class="failing">{{stats.failing}} failing</span>
+            </template>
+            <template if="{{stats.pending}}">
+              <span class="pending">{{stats.pending}} pending</span>
+            </template>
+          </div>
+        </div>
+
+      </template>
+    </template>
+  </template>
+</polymer-element>

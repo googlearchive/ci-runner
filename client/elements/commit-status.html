@@ -6,10 +6,11 @@
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/more-routing/more-route-switch.html">
 
+<link rel="import" href="browser-status.html">
 <link rel="import" href="log-entries.html">
 <link rel="import" href="test-results.html">
 
-<polymer-element name="commit-status" layout vertical fit attributes="firebaseApp user repo sha">
+<polymer-element name="commit-status" layout vertical fit attributes="firebaseRoot">
   <template>
 
     <style>
@@ -20,6 +21,9 @@
 
       log-entries {
         margin-right: 1em;
+      }
+      test-results {
+        padding: 1em;
       }
 
       .image {
@@ -42,15 +46,18 @@
     </paper-tabs>
 
     <more-route-switch id="content" selectedIndex="{{activeRoute}}" flex>
+
       <template when-route="/log">
-        <log-entries
-            firebaseRoot="https://{{firebaseApp}}.firebaseio.com/status/{{params.user}}/{{params.repo}}/{{params.sha}}/log"
-            on-entry-added="{{_onEntryAdded}}">
-        </log-entries>
+        <log-entries firebaseRoot="{{firebaseRoot}}/log" on-entry-added="{{_onEntryAdded}}"></log-entries>
       </template>
+
       <template else>
-        <test-results firebaseRoot="https://{{firebaseApp}}.firebaseio.com/status/{{params.user}}/{{params.repo}}/{{params.sha}}/log"></test-results>
+        <section layout horizontal>
+          <test-results flex firebaseRoot="{{firebaseRoot}}/tests"></test-results>
+          <browser-status firebaseRoot="{{firebaseRoot}}/browsers"></browser-status>
+        </section>
       </template>
+
     </more-route-switch>
 
   </template>

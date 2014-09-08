@@ -1,7 +1,104 @@
+<!--
+    @license
+    Copyright (c) 2014 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<link rel="import" href="../components/core-collapse/core-collapse.html">
+<link rel="import" href="../components/firebase-element/firebase-element.html">
 <link rel="import" href="../components/polymer/polymer.html">
 
-<polymer-element name="test-results" noscript>
+<polymer-element name="test-results" attributes="firebaseRoot">
   <template>
-    TEST RESULTS
+    <style>
+      core-collapse {
+        margin-left: 1em;
+      }
+
+      .group header {
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        cursor: pointer;
+      }
+
+      .state-running header {
+        opacity: 0.35;
+      }
+
+      .state-passing header {
+        color: #259b24;
+      }
+      .state-passing header:before {
+        content: '✓ ';
+      }
+
+      .state-pending header {
+        color: #e65100;
+      }
+      .state-pending header:before {
+        content: '✖ ';
+      }
+
+      .state-failing header {
+        color: #e51c23;
+      }
+      .state-failing header:before {
+        content: '✖ ';
+      }
+    </style>
+
+    <firebase-element location="{{firebaseRoot}}" data="{{tests}}" keys="{{keys}}"></firebase-element>
+
+    <template repeat="{{key in keys}}">
+      <template bind="{{testData(key)}}">
+        <div class="test state-{{state}} {{group ? 'group' : ''}}">
+          <header on-tap="{{_onHeaderTap}}">{{title}}</header>
+
+          <template if="{{group}}">
+            <core-collapse opened>
+              <test-results firebaseRoot="{{childRoot}}"></test-results>
+            </core-collapse>
+          </template>
+        </div>
+      </template>
+    </template>
   </template>
+
+  <script>
+    Polymer('test-results', {
+      _onHeaderTap: function() {
+        var collapse = event.target.parentNode.querySelector('core-collapse');
+        if (!collapse) return;
+        collapse.toggle();
+      },
+
+      testData: function(key) {
+        var test = this.tests[key];
+        var model = Object.create(this);
+
+        model.title     = test.title;
+        model.state     = this._testState(test);
+        model.group     = !!test.children;
+        model.childRoot = this.firebaseRoot + '/' + key + '/children';
+        model.error     = test.error;
+
+        return model;
+      },
+
+      _testState: function(test) {
+        if (!test.browsers) return 'waiting';
+        var states = [];
+        Object.keys(test.browsers).forEach(function(key) {
+          states.push(test.browsers[key].state);
+        });
+
+        if (states.indexOf('failing') >= 0) return 'failing';
+        if (states.indexOf('pending') >= 0) return 'pending';
+        if (states.indexOf('running') >= 0) return 'running';
+        return 'passing';
+      },
+    });
+  </script>
 </polymer-element>

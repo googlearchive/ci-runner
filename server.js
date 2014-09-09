@@ -56,72 +56,74 @@ sauceConnect(config.sauce, function(error, tunnel) {
   if (error) throw error;
   console.log('Sauce tunnel established. Tunnel id:', config.sauce.tunnelIdentifier);
 
-  // Commit Processor (Depends on Sauce)
+  queue.start();
+});
 
-  var queue = new Queue(processor, fbRoot.child('queue'), config);
-  function processor(commit, done) {
-    // TODO(nevir): synchronize status output too!
-    var fbStatus = fbRoot.child('status').child(commit.key);
-    var log      = new Log(process.stdout, commit, fbStatus.child('log'));
-    var runner   = new TestRunner(commit, fbStatus, github, repos, config, log);
-    protect(function() {
-      runner.run(done);
-    }, function(error) {
-      log.fatal(error, 'CI runner internal error:');
-      runner.setCommitStatus('error', 'Internal Error');
-      done(error);
-    });
+// Commit Processor
+
+var queue = new Queue(processor, fbRoot.child('queue'), config);
+function processor(commit, done) {
+  // TODO(nevir): synchronize status output too!
+  var fbStatus = fbRoot.child('status').child(commit.key);
+  var log      = new Log(process.stdout, commit, fbStatus.child('log'));
+  var runner   = new TestRunner(commit, fbStatus, github, repos, config, log);
+  protect(function() {
+    runner.run(done);
+  }, function(error) {
+    log.fatal(error, 'CI runner internal error:');
+    runner.setCommitStatus('error', 'Internal Error');
+    done(error);
+  });
+}
+
+// Web Server
+
+console.log('server starting');
+
+app.use(function(req, res, next){
+  console.log('%s %s', req.method, req.url);
+  next();
+});
+
+app.use(hooks);
+
+app.get('/', function(req, res) {
+  res.send('CI Runner: https://github.com/PolymerLabs/ci-runner');
+});
+
+hooks.on('push', function(event) {
+  console.log('Received GitHub push event');
+
+  var payload = event.payload;
+  var commit;
+  try {
+    commit = Commit.forPushEvent(payload);
+  } catch (error) {
+    console.log('Malformed push event:', error, '\n', payload);
+    return;
   }
 
-  // Web Server
-
-  console.log('server starting');
-
-  app.use(function(req, res, next){
-    console.log('%s %s', req.method, req.url);
-    next();
-  });
-
-  app.use(hooks);
-
-  app.get('/', function(req, res) {
-    res.send('CI Runner: https://github.com/PolymerLabs/ci-runner');
-  });
-
-  hooks.on('push', function(event) {
-    console.log('Received GitHub push event');
-
-    var payload = event.payload;
-    var commit;
-    try {
-      commit = Commit.forPushEvent(payload);
-    } catch (error) {
-      console.log('Malformed push event:', error, '\n', payload);
-      return;
-    }
-
-    if (VALID_PUSH_BRANCHES.indexOf(commit.branch) === -1) {
-      console.log('Push branch not in whitelist:', commit.branch);
-    } else {
-      queue.add(commit);
-    }
-  });
-
-  hooks.on('pull_request', function(event) {
-    console.log('Received GitHub pull_request event');
-
-    var payload = event.payload;
-    var commit;
-    try {
-      commit = Commit.forPullRequestEvent(payload);
-    } catch (error) {
-      console.log('Malformed push event:', error, '\n', payload);
-      return;
-    }
+  if (VALID_PUSH_BRANCHES.indexOf(commit.branch) === -1) {
+    console.log('Push branch not in whitelist:', commit.branch);
+  } else {
     queue.add(commit);
-  });
-
-  app.listen(config.worker.port);
-
-  console.log('server listening for requests');
+  }
 });
+
+hooks.on('pull_request', function(event) {
+  console.log('Received GitHub pull_request event');
+
+  var payload = event.payload;
+  var commit;
+  try {
+    commit = Commit.forPullRequestEvent(payload);
+  } catch (error) {
+    console.log('Malformed push event:', error, '\n', payload);
+    return;
+  }
+  queue.add(commit);
+});
+
+app.listen(config.worker.port);
+
+console.log('server listening for requests');

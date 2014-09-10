@@ -21,6 +21,8 @@ Running Locally
 
 `node server`
 
+(Assuming that you have the correct environment variables set. See below.)
+
 
 Spinning Up Your Own Workers
 ----------------------------

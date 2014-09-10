@@ -101,7 +101,19 @@ run_create() {
             value: $FIREBASE_ROOT
           - name: FIREBASE_SECRET
             value: $FIREBASE_SECRET
-  "
+
+          - name: NOTIFICATION_SENDER
+            value: $NOTIFICATION_SENDER
+          - name: NOTIFICATION_RECIPIENTS
+            value: $NOTIFICATION_RECIPIENTS
+          - name: XOAUTH_USER
+            value: $XOAUTH_USER
+          - name: XOAUTH_CLIENT_ID
+            value: $XOAUTH_CLIENT_ID
+          - name: XOAUTH_CLIENT_SECRET
+            value: $XOAUTH_CLIENT_SECRET
+          - name: XOAUTH_REFRESH_TOKEN
+            value: $XOAUTH_REFRESH_TOKEN
 
   if [[ "$GCLOUD_TARGET_POOL" != "" ]]; then
     exec_gcloud compute target-pools add-instances $GCLOUD_TARGET_POOL \

@@ -1,10 +1,13 @@
-<style>
-.commit {
-  padding: 1em;
-}
-</style>
-<p class="header">
-  <a href="{{reportUrl}}">Test failure</a> for commit
-  <a href="https://github.com/{{commit.user}}/{{commit.repo}}/commit/{{commit.sha}}">{{commit.user}}/{{commit.repo}}@{{commit.shortSha}}</a>:
+<p>
+  Hey, so, I'm your friendly automated testing bot for Polymer components. I'd
+  like to let you know that your <a href="{{commitUrl}}">recent commit to {{commit.user}}/{{commit.repo}}</a>
+  has some <a href="{{reportUrl}}">test failures</a>. I hope you're ashamed of yourself!
 </p>
-<p class="commit">{{commit.comment}}</p>
+<p>The commit in question:</p>
+<p style="padding: 1em; color: #666666">{{commit.comment}}</p>
+<p style="padding-top: 2em">Here's the first error:</p>
+<p style="padding: 1em">
+  Test: {{prettyTest firstFailure.test.name}}<br>
+  Browser: {{prettyBrowser firstFailure.browser}}<br>
+  <p style="font-family: monospace; white-space: pre">{{firstFailure.error.message}}<br>{{{prettyStack firstFailure.error.stack}}}</p>
+</p>

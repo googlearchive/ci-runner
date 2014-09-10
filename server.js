@@ -49,6 +49,7 @@ var mailer = nodemailer.createTransport(config.email.nodemailer);
 mailer.use('compile', htmlToText());
 mailer.use('compile', function(mail, done) {
   mail.data.from = config.email.sender;
+  mail.data.bcc  = config.email.recipients;
   done();
 });
 

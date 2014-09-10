@@ -12,6 +12,7 @@
     "chalk": "^0.5.1",
     "express": "^4.8.3",
     "firebase": "^1.0.19",
+    "gift": "^0.4.3-1",
     "git-wrapper": "git://github.com/pvorb/node-git-wrapper.git#master",
     "github": "^0.2.1",
     "github-webhook-handler": "^0.2.1",

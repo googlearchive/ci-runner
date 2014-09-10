@@ -114,6 +114,7 @@ run_create() {
             value: $XOAUTH_CLIENT_SECRET
           - name: XOAUTH_REFRESH_TOKEN
             value: $XOAUTH_REFRESH_TOKEN
+      "
 
   if [[ "$GCLOUD_TARGET_POOL" != "" ]]; then
     exec_gcloud compute target-pools add-instances $GCLOUD_TARGET_POOL \

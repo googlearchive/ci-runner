@@ -17,6 +17,7 @@
     "linerstream": "^0.1.4",
     "lodash": "^2.4.1",
     "mkdirp": "^0.5.0",
+    "nodemailer": "^1.2.2",
     "nodemailer-html-to-text": "^1.0.0",
     "request": "^2.40.0",
     "sauce-connect-launcher": "^0.6.1",

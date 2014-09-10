@@ -1,0 +1,10 @@
+<style>
+.commit {
+  padding: 1em;
+}
+</style>
+<p class="header">
+  <a href="{{reportUrl}}">Test failure</a> for commit
+  <a href="https://github.com/{{commit.user}}/{{commit.repo}}/commit/{{commit.sha}}">{{commit.user}}/{{commit.repo}}@{{commit.shortSha}}</a>:
+</p>
+<p class="commit">{{commit.comment}}</p>

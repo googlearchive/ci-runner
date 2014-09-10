@@ -13,9 +13,11 @@
     "git-wrapper": "git://github.com/pvorb/node-git-wrapper.git#master",
     "github": "^0.2.1",
     "github-webhook-handler": "^0.2.1",
+    "handlebars": "^2.0.0",
     "linerstream": "^0.1.4",
     "lodash": "^2.4.1",
     "mkdirp": "^0.5.0",
+    "nodemailer-html-to-text": "^1.0.0",
     "request": "^2.40.0",
     "sauce-connect-launcher": "^0.6.1",
     "shelljs": "^0.3.0",
@@ -24,7 +26,8 @@
     "synchronized": "^0.1.7",
     "tmp": "0.0.24",
     "uuid": "^1.4.1",
-    "web-component-tester": "^0.3.2"
+    "web-component-tester": "^0.3.2",
+    "xoauth2": "^0.1.8"
   },
   "devDependencies": {
     "gulp": "^3.8.7",

@@ -14,7 +14,9 @@ var express      = require('express');
 var Firebase     = require('firebase');
 var GHWebHooks   = require('github-webhook-handler');
 var GitHub       = require('github');
+var htmlToText   = require('nodemailer-html-to-text').htmlToText;
 var http         = require('http');
+var nodemailer   = require('nodemailer');
 var path         = require('path');
 var sauceConnect = require('sauce-connect-launcher');
 var uuid         = require('uuid');
@@ -43,9 +45,16 @@ fbRoot.auth(config.firebase.secret);
 var github = new GitHub({version: '3.0.0'});
 github.authenticate({type: 'oauth', token: config.github.oauthToken});
 
-var repos = new RepoRegistry(path.join(__dirname, 'commits'));
-var app   = express();
-var hooks = new GHWebHooks({path: config.github.webhookPath, secret: config.github.webhookSecret});
+var mailer = nodemailer.createTransport(config.email.nodemailer);
+mailer.use('compile', htmlToText());
+mailer.use('compile', function(mail, done) {
+  mail.data.from = config.email.sender;
+  done();
+});
+
+var repos  = new RepoRegistry(path.join(__dirname, 'commits'));
+var app    = express();
+var hooks  = new GHWebHooks({path: config.github.webhookPath, secret: config.github.webhookSecret});
 
 // Sauce Tunnel
 
@@ -66,7 +75,7 @@ function processor(commit, done) {
   // TODO(nevir): synchronize status output too!
   var fbStatus = fbRoot.child('status').child(commit.key);
   var log      = new Log(process.stdout, commit, fbStatus.child('log'));
-  var runner   = new TestRunner(commit, fbStatus, github, repos, config, log);
+  var runner   = new TestRunner(commit, fbStatus, github, repos, config, mailer, log);
   protect(function() {
     runner.run(done);
   }, function(error) {

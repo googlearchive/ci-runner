@@ -57,12 +57,23 @@
   <script>
     Polymer('log-entries', {
       publish: {
-        // We DO NOT support changing this after `ready`!
         firebaseRoot: '',
         scrollsToBottom: false,
       },
 
-      attached: function() {
+      firebaseRootChanged: function() {
+        this._closeFirebase();
+        this._openFirebase();
+      },
+
+      detached: function() {
+        this._closeFirebase();
+      },
+
+      _openFirebase: function() {
+        this._content = document.createElement('div');
+        this.shadowRoot.appendChild(this._content);
+
         this._firebase = new Firebase(this.firebaseRoot);
         // Note that we assume that all entry text is immutable, and only ever
         // appended. Thus, no move tracking. Change tracking is only to detect
@@ -72,9 +83,11 @@
         this._firebase.on('child_removed', this._onChildRemoved.bind(this));
       },
 
-      detached: function() {
+      _closeFirebase: function() {
+        if (!this._firebase) return;
         this._firebase.off();
         this._firebase = null;
+        this._content.remove();
       },
 
       _onChildAdded: function(snapshot, prevEntryId) {
@@ -95,7 +108,7 @@
       },
 
       _onChildRemoved: function(snapshot) {
-        this.shadowRoot.getElementById(snapshot.name()).remove();
+        this._content.querySelector('#' + snapshot.name()).remove();
         var group = this._groupForId(snapshot.name());
         if (group) group.remove();
       },
@@ -129,21 +142,21 @@
       },
 
       _groupForId: function(id) {
-        return this.shadowRoot.querySelector('[for="' + id + '"]');
+        return this._content.querySelector('[for="' + id + '"]');
       },
 
       _insertAfterEntry: function(node, prevId) {
-        var entryNode = this.shadowRoot.getElementById(prevId);
+        var entryNode = this._content.querySelector('#' + prevId);
         if (!entryNode) {
-          this.shadowRoot.appendChild(node);
+          this._content.appendChild(node);
           return;
         }
 
         if (entryNode.nextSibling && entryNode.nextSibling.getAttribute('for') == prevId) {
           // After the group
-          this.shadowRoot.insertBefore(node, entryNode.nextSibling.nextSibling);
+          this._content.insertBefore(node, entryNode.nextSibling.nextSibling);
         } else {
-          this.shadowRoot.insertBefore(node, entryNode.nextSibling);
+          this._content.insertBefore(node, entryNode.nextSibling);
         }
       }
     });

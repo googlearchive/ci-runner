@@ -113,7 +113,8 @@ hooks.on('push', function(event) {
     return;
   }
 
-  if (config.github.validPushBranches.indexOf(commit.branch) === -1) {
+  if (config.github.validPushBranches[0] !== '*' &&
+      config.github.validPushBranches.indexOf(commit.branch) === -1) {
     console.log('Push branch not in whitelist:', commit.branch);
   } else {
     queue.add(commit);

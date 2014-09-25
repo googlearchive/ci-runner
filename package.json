@@ -30,7 +30,7 @@
     "synchronized": "^0.1.7",
     "tmp": "0.0.24",
     "uuid": "^1.4.1",
-    "web-component-tester": "^0.6.1",
+    "web-component-tester": "^0.6.2",
     "xoauth2": "^0.1.8"
   },
   "devDependencies": {

@@ -26,7 +26,7 @@
     "sauce-connect-launcher": "^0.6.1",
     "shelljs": "^0.3.0",
     "sprintf-js": "0.0.7",
-    "stacky": "^1.0.1",
+    "stacky": "^1.1.1",
     "synchronized": "^0.1.7",
     "tmp": "0.0.24",
     "uuid": "^1.4.1",

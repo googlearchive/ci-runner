@@ -9,6 +9,7 @@
  */
 'use strict';
 
+var _            = require('lodash');
 var chalk        = require('chalk');
 var express      = require('express');
 var Firebase     = require('firebase');
@@ -110,6 +111,11 @@ hooks.on('push', function(event) {
     commit = Commit.forPushEvent(payload);
   } catch (error) {
     console.log('Malformed push event:', error, '\n', payload);
+    return;
+  }
+
+  if (!_.contains(config.worker.pushBranches, config.branch)) {
+    console.log('Skipping push event ("' + config.branch + '" not a whitelisted branch');
     return;
   }
 

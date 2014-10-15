@@ -123,7 +123,7 @@ hooks.on('push', function(event) {
 });
 
 hooks.on('pull_request', function(event) {
-  if (event.action !== 'open' && event.action !== 'synchronize') return;
+  if (event.action !== 'opened' && event.action !== 'synchronize') return;
 
   console.log('Received GitHub pull_request event');
 

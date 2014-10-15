@@ -104,7 +104,7 @@ app.get('/', function(req, res) {
 
 hooks.on('push', function(event) {
   var payload = event.payload;
-  console.log('Received GitHub push event. ref:', event.ref, 'sha:', event.after);
+  console.log('Received GitHub push event. ref:', payload.ref, 'sha:', payload.after);
 
   var commit;
   try {

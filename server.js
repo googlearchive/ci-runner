@@ -103,9 +103,9 @@ app.get('/', function(req, res) {
 });
 
 hooks.on('push', function(event) {
-  var payload = event.payload;
-  console.log('Received GitHub push event. ref:', payload.ref, 'sha:', payload.after);
+  console.log('Received GitHub push event:', event);
 
+  var payload = event.payload;
   var commit;
   try {
     commit = Commit.forPushEvent(payload);
@@ -123,8 +123,8 @@ hooks.on('push', function(event) {
 });
 
 hooks.on('pull_request', function(event) {
+  console.log('Received GitHub pull_request event:', event);
   var payload = event.payload;
-  console.log('Received GitHub pull_request event. action:', payload.action, 'url:', payload.pull_request.url);
   if (payload.action !== 'opened' && payload.action !== 'synchronize') return;
 
   var commit;

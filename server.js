@@ -114,8 +114,8 @@ hooks.on('push', function(event) {
     return;
   }
 
-  if (!_.contains(config.worker.pushBranches, config.branch)) {
-    console.log('Skipping push event ("' + config.branch + '" not a whitelisted branch');
+  if (!_.contains(config.worker.pushBranches, commit.branch)) {
+    console.log('Skipping push event ("' + commit.branch + '" not a whitelisted branch)');
     return;
   }
 

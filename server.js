@@ -42,36 +42,42 @@ var queue;
 // GitHub API.
 var github = new GitHub({version: '3.0.0'});
 github.authenticate({type: 'oauth', token: config.github.oauthToken});
+// This worker's global log (events not related to tests).
+var workerKey = config.worker.workerId.replace(/[.#$\[\]]/g, '-');
+var workerLog = new Log(process.stdout, null, fbRoot.child('log').child(workerKey));
+// Mailer
+var mailer = nodemailer.createTransport(config.email.nodemailer);
+mailer.use('compile', htmlToText());
+mailer.use('compile', function(mail, done) {
+  mail.data.from = config.email.sender;
+  mail.data.bcc  = config.email.recipients;
+  done();
+});
 
 // Workflow Segments
 
 function connectToServices(done) {
-  console.log('Connecting to services:\n');
+  workerLog.group('Connecting to services');
 
   async.parallel([
-    serverSteps.establishSauceTunnel.bind(serverSteps, config),
+    // serverSteps.establishSauceTunnel.bind(serverSteps, config, workerLog),
     function(next) {
       fbRoot.authWithCustomToken(config.firebase.secret, function(error) {
         if (!error) {
-          console.log('  Authenticated with Firebase');
+          workerLog.info('Authenticated with Firebase');
         }
         next(error);
       });
     },
-  ], done);
+  ], function(error) {
+    workerLog.groupEnd();
+    done(error);
+  });
 }
 
 // TODO(nevir): This could use some cleanup.
 function startQueue(done) {
-  console.log('\nStarting queue');
-
-  var mailer = nodemailer.createTransport(config.email.nodemailer);
-  mailer.use('compile', htmlToText());
-  mailer.use('compile', function(mail, done) {
-    mail.data.from = config.email.sender;
-    mail.data.bcc  = config.email.recipients;
-    done();
-  });
+  workerLog.info('Starting Queue');
 
   var repos = new RepoRegistry(path.join(__dirname, 'commits'));
 
@@ -95,19 +101,32 @@ function startQueue(done) {
   done();
 }
 
+function updateRunnersAfterInterval() {
+  setTimeout(function() {
+    queue.pause(function() {
+      TestRunner.update(config, workerLog, mailer, function() {
+        queue.resume();
+        updateRunnersAfterInterval();
+      });
+    });
+  }, config.worker.runnerRefreshInterval);
+}
+
 // Boot
 
 async.series([
   connectToServices,
+  TestRunner.update.bind(TestRunner, config, workerLog, mailer),
   startQueue,
   function(done) {
-    serverSteps.startServer(config, queue, fbRoot, github, done);
+    serverSteps.startServer(config, workerLog, queue, fbRoot, github, done);
   },
 ], function(error) {
   if (error) {
-    console.error('CI Runner failed to start:', error);
+    workerLog.error('CI Runner failed to start:', error);
     throw error;
   }
-  console.log('\nCI Runner active.');
+  workerLog.info('CI Runner active.');
+  updateRunnersAfterInterval();
 });
 

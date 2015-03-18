@@ -60,7 +60,7 @@ function connectToServices(done) {
   workerLog.group('Connecting to services');
 
   async.parallel([
-    // serverSteps.establishSauceTunnel.bind(serverSteps, config, workerLog),
+    serverSteps.establishSauceTunnel.bind(serverSteps, config, workerLog),
     function(next) {
       fbRoot.authWithCustomToken(config.firebase.secret, function(error) {
         if (!error) {

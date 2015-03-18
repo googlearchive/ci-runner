@@ -39,6 +39,9 @@ var config = new Config(process.env);
 var fbRoot = new Firebase(config.firebase.root);
 // The task `Queue` that drives this server.
 var queue;
+// GitHub API.
+var github = new GitHub({version: '3.0.0'});
+github.authenticate({type: 'oauth', token: config.github.oauthToken});
 
 // Workflow Segments
 
@@ -61,9 +64,6 @@ function connectToServices(done) {
 // TODO(nevir): This could use some cleanup.
 function startQueue(done) {
   console.log('\nStarting queue');
-
-  var github = new GitHub({version: '3.0.0'});
-  github.authenticate({type: 'oauth', token: config.github.oauthToken});
 
   var mailer = nodemailer.createTransport(config.email.nodemailer);
   mailer.use('compile', htmlToText());
@@ -90,6 +90,8 @@ function startQueue(done) {
   }
 
   queue = new Queue(processor, fbRoot.child('queue'), config);
+  queue.start();
+
   done();
 }
 
@@ -99,7 +101,7 @@ async.series([
   connectToServices,
   startQueue,
   function(done) {
-    serverSteps.startServer(config, queue, done);
+    serverSteps.startServer(config, queue, fbRoot, github, done);
   },
 ], function(error) {
   if (error) {

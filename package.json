@@ -40,6 +40,6 @@
     "gulp-vulcanize": "^1.0.0"
   },
   "scripts": {
-    "server": "node server"
+    "start": "node server"
   }
 }

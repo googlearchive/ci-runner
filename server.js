@@ -9,134 +9,103 @@
  */
 'use strict';
 
-var _            = require('lodash');
+var async        = require('async');
 var chalk        = require('chalk');
-var express      = require('express');
 var Firebase     = require('firebase');
-var GHWebHooks   = require('github-webhook-handler');
 var GitHub       = require('github');
 var htmlToText   = require('nodemailer-html-to-text').htmlToText;
 var http         = require('http');
 var nodemailer   = require('nodemailer');
 var path         = require('path');
-var sauceConnect = require('sauce-connect-launcher');
-var uuid         = require('uuid');
 
-var Commit       = require('./lib/commit');
 var Config       = require('./lib/config');
 var Log          = require('./lib/log');
 var protect      = require('./lib/protect');
 var Queue        = require('./lib/queue');
 var RepoRegistry = require('./lib/reporegistry');
+var serverSteps  = require('./lib/serversteps');
 var TestRunner   = require('./lib/testrunner');
 
-// Setup
+// Setup & Global State
 
 // We may not be in a real TTY, but we _really_ like colors.
 chalk.enabled = true;
-
 // We open a crap ton of concurrent requests to Sauce.
 http.globalAgent.maxSockets = 250;
 
+// CI Runner configuration.
 var config = new Config(process.env);
-
+// The root firebase key that CI runner state is maintained under.
 var fbRoot = new Firebase(config.firebase.root);
-fbRoot.auth(config.firebase.secret);
+// The task `Queue` that drives this server.
+var queue;
 
-var github = new GitHub({version: '3.0.0'});
-github.authenticate({type: 'oauth', token: config.github.oauthToken});
+// Workflow Segments
 
-var mailer = nodemailer.createTransport(config.email.nodemailer);
-mailer.use('compile', htmlToText());
-mailer.use('compile', function(mail, done) {
-  mail.data.from = config.email.sender;
-  mail.data.bcc  = config.email.recipients;
-  done();
-});
+function connectToServices(done) {
+  console.log('Connecting to services:\n');
 
-var repos  = new RepoRegistry(path.join(__dirname, 'commits'));
-var app    = express();
-var hooks  = new GHWebHooks({path: config.github.webhookPath, secret: config.github.webhookSecret});
-
-// Sauce Tunnel
-
-console.log('Establishing Sauce tunnel');
-
-config.sauce.tunnelIdentifier = uuid.v4();
-sauceConnect(config.sauce, function(error, tunnel) {
-  if (error) throw error;
-  console.log('Sauce tunnel established. Tunnel id:', config.sauce.tunnelIdentifier);
-
-  queue.start();
-});
-
-// Commit Processor
-
-var queue = new Queue(processor, fbRoot.child('queue'), config);
-function processor(commit, done) {
-  // TODO(nevir): synchronize status output too!
-  var fbStatus = fbRoot.child('status').child(commit.key);
-  var log      = new Log(process.stdout, commit, fbStatus.child('log'));
-  var runner   = new TestRunner(commit, fbStatus, github, repos, config, mailer, log);
-  protect(function() {
-    runner.run(done);
-  }, function(error) {
-    log.fatal(error, 'CI runner internal error:');
-    runner.setCommitStatus('error', 'Internal Error');
-    done(error);
-  });
+  async.parallel([
+    serverSteps.establishSauceTunnel.bind(serverSteps, config),
+    function(next) {
+      fbRoot.authWithCustomToken(config.firebase.secret, function(error) {
+        if (!error) {
+          console.log('  Authenticated with Firebase');
+        }
+        next(error);
+      });
+    },
+  ], done);
 }
 
-// Web Server
+// TODO(nevir): This could use some cleanup.
+function startQueue(done) {
+  console.log('\nStarting queue');
 
-console.log('server starting');
+  var github = new GitHub({version: '3.0.0'});
+  github.authenticate({type: 'oauth', token: config.github.oauthToken});
 
-app.use(function(req, res, next){
-  console.log('%s %s', req.method, req.url);
-  next();
-});
+  var mailer = nodemailer.createTransport(config.email.nodemailer);
+  mailer.use('compile', htmlToText());
+  mailer.use('compile', function(mail, done) {
+    mail.data.from = config.email.sender;
+    mail.data.bcc  = config.email.recipients;
+    done();
+  });
 
-app.use(hooks);
+  var repos = new RepoRegistry(path.join(__dirname, 'commits'));
 
-app.get('/', function(req, res) {
-  res.send('CI Runner: https://github.com/PolymerLabs/ci-runner');
-});
-
-hooks.on('push', function(event) {
-  console.log('Received GitHub push event:', event);
-
-  var payload = event.payload;
-  var commit;
-  try {
-    commit = Commit.forPushEvent(payload);
-  } catch (error) {
-    console.log('Malformed push event:', error, '\n', payload);
-    return;
+  function processor(commit, done) {
+    // TODO(nevir): synchronize status output too!
+    var fbStatus = fbRoot.child('status').child(commit.key);
+    var log      = new Log(process.stdout, commit, fbStatus.child('log'));
+    var runner   = new TestRunner(commit, fbStatus, github, repos, config, mailer, log);
+    protect(function() {
+      runner.run(done);
+    }, function(error) {
+      log.fatal(error, 'CI runner internal error:');
+      runner.setCommitStatus('error', 'Internal Error');
+      done(error);
+    });
   }
 
-  if (!_.contains(config.worker.pushBranches, commit.branch)) {
-    console.log('Skipping push event ("' + commit.branch + '" not a whitelisted branch)');
-    return;
-  }
+  queue = new Queue(processor, fbRoot.child('queue'), config);
+  done();
+}
 
-  queue.add(commit);
+// Boot
+
+async.series([
+  connectToServices,
+  startQueue,
+  function(done) {
+    serverSteps.startServer(config, queue, done);
+  },
+], function(error) {
+  if (error) {
+    console.error('CI Runner failed to start:', error);
+    throw error;
+  }
+  console.log('\nCI Runner active.');
 });
 
-hooks.on('pull_request', function(event) {
-  console.log('Received GitHub pull_request event:', event);
-  var payload = event.payload;
-  if (payload.action !== 'opened' && payload.action !== 'synchronize') return;
-
-  var commit;
-  try {
-    commit = Commit.forPullRequestEvent(payload);
-  } catch (error) {
-    console.log('Malformed push event:', error, '\n', payload);
-    return;
-  }
-  queue.add(commit);
-});
-
-app.listen(config.worker.port);
-
-console.log('server listening for requests');

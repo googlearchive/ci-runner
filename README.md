@@ -19,7 +19,7 @@ You will want to turn on pull request and push status.
 Running Locally
 ---------------
 
-`node server`
+`npm start`
 
 (Assuming that you have the correct environment variables set. See below.)
 
@@ -63,4 +63,4 @@ You can then run `manage` from any directory that contains that config file
 directly, or up its path.
 
 The full set of configuration values is specified in
-[`server.js`](server.js#L15-47).
+[`lib/config.js`](lib/config.js).

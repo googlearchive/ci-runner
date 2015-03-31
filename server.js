@@ -95,7 +95,7 @@ function startQueue(done) {
     });
   }
 
-  queue = new Queue(processor, fbRoot.child('queue'), config);
+  queue = new Queue(processor, fbRoot.child('queue'), github, config);
   queue.start();
 
   done();

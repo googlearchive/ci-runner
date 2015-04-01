@@ -90,7 +90,6 @@ function startQueue(done) {
       runner.run(done);
     }, function(error) {
       log.fatal(error, 'CI runner internal error:');
-      runner.setCommitStatus('error', 'Internal Error');
       done(error);
     });
   }

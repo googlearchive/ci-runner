@@ -29,7 +29,7 @@ DOCKER_IMAGE=polymerlabs/ci-runner
 MACHINE_IMAGE_NAME=container-vm-v20140731
 MACHINE_IMAGE_PROJECT=google-containers
 MACHINE_ZONE=us-central1-a
-MACHINE_TYPE=f1-micro
+MACHINE_TYPE=n1-standard-2
 WORKER_PREFIX=ci-runner
 
 CONFIG_FILE=.polymer-ci-runner.sh

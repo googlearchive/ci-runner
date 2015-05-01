@@ -1,6 +1,6 @@
 {
   "name": "ci-runner",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Continuous integration test runner focused on web components",
   "author": "The Polymer Authors",
   "license": "BSD-3-Clause",

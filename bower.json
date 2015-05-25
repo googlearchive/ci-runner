@@ -2,21 +2,29 @@
   "name": "ci-runner",
   "private": true,
   "dependencies": {
-    "core-collapse": "Polymer/core-collapse#master",
-    "core-icon": "Polymer/core-icon#master",
-    "core-icons": "Polymer/core-icons#master",
-    "core-item": "Polymer/core-item#master",
-    "core-list": "Polymer/core-list#master",
-    "core-scaffold": "Polymer/core-scaffold#master",
-    "core-splitter": "Polymer/core-splitter#master",
-    "core-toolbar": "Polymer/core-toolbar#master",
-    "core-tooltip": "Polymer/core-tooltip#master",
-    "firebase-element": "Polymer/firebase-element#master",
+    "core-collapse": "Polymer/core-collapse#^0.5",
+    "core-icon": "Polymer/core-icon#^0.5",
+    "core-icons": "Polymer/core-icons#^0.5",
+    "core-item": "Polymer/core-item#^0.5",
+    "core-list": "Polymer/core-list#^0.5",
+    "core-scaffold": "Polymer/core-scaffold#^0.5",
+    "core-splitter": "Polymer/core-splitter#^0.5",
+    "core-style": "Polymer/core-style#^0.5",
+    "core-toolbar": "Polymer/core-toolbar#^0.5",
+    "core-tooltip": "Polymer/core-tooltip#^0.5",
+    "firebase-element": "Polymer/firebase-element#^0.5",
     "more-filters": "Polymore/more-filters#master",
     "more-param": "Polymore/more-param#master",
-    "more-routing": "Polymore/more-routing#master",
-    "paper-tabs": "Polymer/paper-tabs#master",
+    "more-routing": "Polymore/more-routing#^0.5",
+    "paper-tabs": "Polymer/paper-tabs#^0.5",
     "paper-theme-experiment": "nevir/paper-theme-experiment#master",
-    "polymer": "Polymer/polymer#master"
+    "polymer": "Polymer/polymer#^0.5",
+    "webcomponentsjs": "0.6.1"
+  },
+  "resolutions": {
+    "font-roboto": "^0.5",
+    "polymer": "^0.5",
+    "core-style": "^0.5",
+    "webcomponentsjs": "0.6.1"
   }
 }

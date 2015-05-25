@@ -15,10 +15,11 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="components/platform/platform.js"></script>
+  <script src="components/webcomponentsjs/webcomponents.js"></script>
   <link rel="import" href="components/paper-theme-experiment/paper-theme.html">
   <link rel="import" href="components/paper-theme-experiment/paper-theme-style.html">
   <link rel="import" href="components/core-scaffold/core-scaffold.html">
+  <link rel="import" href="components/more-routing/more-routing-config.html">
   <link rel="import" href="components/more-routing/more-route-switch.html">
 
   <link rel="import" href="routes.html">
@@ -26,15 +27,6 @@
   <link rel="import" href="elements/commit-header.html">
   <link rel="import" href="elements/commit-status.html">
   <link rel="import" href="elements/pending-commits.html">
-
-  <paper-theme primaryColor="#3f51b5" accentColor="#ff4081"></paper-theme>
-
-  <paper-theme-style key="commit-status" type="element">
-    .toolbar, .tabs {
-      background-color: {{paper.primaryColor}};
-      color: white;
-    }
-  </paper-theme-style>
 
   <style>
     body, html {
@@ -48,6 +40,17 @@
   </style>
 </head>
 <body>
+  <paper-theme primaryColor="#3f51b5" accentColor="#ff4081"></paper-theme>
+
+  <paper-theme-style key="commit-status" type="element">
+    .toolbar, .tabs {
+      background-color: {{paper.primaryColor}};
+      color: white;
+    }
+  </paper-theme-style>
+
+  <more-routing-config driver="path"></more-routing-config>
+
   <template is="auto-binding">
     <more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param>
 

@@ -166,7 +166,7 @@ TODO(nevir): Extract this out to labs.
       },
 
       clearSpans: function() {
-        var spans = this.shadowRoot.getElementsByTagName('span');
+        var spans = this.shadowRoot.querySelectorAll('span');
         for (var i = 0, span; span = spans[i]; i++) {
           span.remove();
         }

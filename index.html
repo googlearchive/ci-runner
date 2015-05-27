@@ -254,7 +254,7 @@ html /deep/ [paper-font-style=button] {
       background-color: {{paper.primaryColor}};
       color: white;
     }
-  </paper-theme-style><more-routing-config driver="path"></more-routing-config><template is="auto-binding"><more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param><core-scaffold responsivewidth="900px"><nav><pending-commits firebaseapp="{{firebaseApp}}"></pending-commits></nav><div tool=""><more-route-switch id="header"><template when-route="commit-details"><commit-header commit="{{params}}"></commit-header></template><template when-route="root">
+  </paper-theme-style><more-routing-config driver="hash"></more-routing-config><template is="auto-binding"><more-param key="firebase_app" value="{{firebaseApp}}" default="polymer-ci"></more-param><core-scaffold responsivewidth="900px"><nav><pending-commits firebaseapp="{{firebaseApp}}"></pending-commits></nav><div tool=""><more-route-switch id="header"><template when-route="commit-details"><commit-header commit="{{params}}"></commit-header></template><template when-route="root">
             Polymer CI
           </template></more-route-switch></div><more-route-switch id="body" routecontext=""><template when-route="commit-details"><commit-status firebaseroot="https://{{firebaseApp}}.firebaseio.com/status/{{params.user}}/{{params.repo}}/{{params.sha}}"></commit-status></template><template when-route="root"><div class="intro-info" fit="" center="" paper-font-style="display-2">
             ☚ Choose a test to monitor

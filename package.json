@@ -38,7 +38,7 @@
     "gulp": "^3.8.7",
     "gulp-bower": "0.0.6",
     "gulp-shell": "^0.2.9",
-    "gulp-vulcanize": "^1.0.0"
+    "gulp-vulcanize": "^5.0.0"
   },
   "scripts": {
     "start": "node server"

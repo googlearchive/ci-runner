@@ -85,11 +85,16 @@ QueueProcessor.prototype.run = function run(commit, done) {
   var fbStatus = fbRoot.child('status').child(commit.key);
   var log      = new Log(process.stdout, commit, fbStatus.child('log'));
   this.runner  = new TestRunner(commit, fbStatus, github, this.repos, config, mailer, log);
+
+  var fn = function(err, resp) {
+    this.runner = null;
+    done(err, resp);
+  }.bind(this);
   protect(function() {
-    this.runner.run(done);
-  }, function(error) {
+    this.runner.run(fn);
+  }.bind(this), function(error) {
     log.fatal(error, 'CI runner internal error:');
-    done(error);
+    fn(error);
   });
 };
 

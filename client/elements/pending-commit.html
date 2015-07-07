@@ -9,9 +9,8 @@
 -->
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/firebase-element/firebase-element.html">
-<link rel="import" href="../components/core-icon/core-icon.html">
 <link rel="import" href="../components/core-icons/core-icons.html">
-<link rel="import" href="../components/core-icons/notification-icons.html">
+<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-theme-experiment/paper-theme-style.html">
 
 <polymer-element name="pending-commit" attributes="firebaseApp commit" class="state-{{status.state}}" layout horizontal>
@@ -41,26 +40,24 @@
       data="{{status}}">
     </firebase-element>
 
+    <core-ajax
+      id="cancelRequest"
+      url="http://107.178.209.7/cancel?{{commit.user}}/{{commit.repo}}@{{commit.sha}}">
+    </core-ajax>
+
     <div class="content" flex self-center>
       <div>{{commit.user}}/{{commit.repo}}@{{commit.sha | substr(0,6)}}</div>
       <div class="status" hidden?="{{!status}}">{{status.state}}: {{status.text}}</div>
     </div>
-    <core-icon icon="{{status.state | statusIcon}}" self-center></core-icon>
+    <paper-icon-button icon="cancel" on-tap="{{cancel}}"></paper-icon-button>
   </template>
 
   <script>
     Polymer('pending-commit', {
-      statusIcon: function(state) {
-        if (state == 'success') {
-          return 'check';
-        } else if (state == 'failed') {
-          return 'close';
-        } else if (state == 'error') {
-          return 'error';
-        } else {
-          return 'notification:sync';
-        }
-      },
+      cancel: function(e) {
+        this.$.cancelRequest.go();
+        e.stopPropagation();
+      }
     });
   </script>
 </polymer-element>

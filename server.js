@@ -7,6 +7,7 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
+// jshint node: true
 'use strict';
 
 var async        = require('async');
@@ -75,26 +76,36 @@ function connectToServices(done) {
   });
 }
 
+function QueueProcessor(repos) {
+  this.runner = null;
+  this.repos = repos;
+}
+
+QueueProcessor.prototype.run = function run(commit, done) {
+  var fbStatus = fbRoot.child('status').child(commit.key);
+  var log      = new Log(process.stdout, commit, fbStatus.child('log'));
+  this.runner  = new TestRunner(commit, fbStatus, github, this.repos, config, mailer, log);
+  protect(function() {
+    this.runner.run(done);
+  }, function(error) {
+    log.fatal(error, 'CI runner internal error:');
+    done(error);
+  });
+};
+
+QueueProcessor.prototype.cancel = function cancel(commit) {
+  if (this.runner) {
+    this.runner.cancel();
+  }
+};
+
 // TODO(nevir): This could use some cleanup.
 function startQueue(done) {
   workerLog.info('Starting Queue');
 
   var repos = new RepoRegistry(path.join(__dirname, 'commits'));
 
-  function processor(commit, done) {
-    // TODO(nevir): synchronize status output too!
-    var fbStatus = fbRoot.child('status').child(commit.key);
-    var log      = new Log(process.stdout, commit, fbStatus.child('log'));
-    var runner   = new TestRunner(commit, fbStatus, github, repos, config, mailer, log);
-    protect(function() {
-      runner.run(done);
-    }, function(error) {
-      log.fatal(error, 'CI runner internal error:');
-      done(error);
-    });
-  }
-
-  queue = new Queue(processor, fbRoot.child('queue'), github, config);
+  queue = new Queue(new QueueProcessor(repos), fbRoot.child('queue'), github, config);
   queue.start();
 
   done();

@@ -1,4 +1,4 @@
 [submodule "gh-pages"]
 	path = gh-pages
-	url = ssh://github.com/PolymerLabs/ci-runner
+	url = https://github.com/PolymerLabs/ci-runner
 	branch = gh-pages

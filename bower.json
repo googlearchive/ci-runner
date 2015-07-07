@@ -2,6 +2,7 @@
   "name": "ci-runner",
   "private": true,
   "dependencies": {
+    "core-ajax": "Polymer/core-ajax#^0.5",
     "core-collapse": "Polymer/core-collapse#^0.5",
     "core-icon": "Polymer/core-icon#^0.5",
     "core-icons": "Polymer/core-icons#^0.5",

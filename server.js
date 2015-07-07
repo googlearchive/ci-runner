@@ -90,6 +90,7 @@ QueueProcessor.prototype.run = function run(commit, done) {
     this.runner = null;
     done(err, resp);
   }.bind(this);
+
   protect(function() {
     this.runner.run(fn);
   }.bind(this), function(error) {

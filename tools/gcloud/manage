@@ -85,6 +85,8 @@ run_create() {
             value: $VALID_RUNNERS
           - name: MAX_TEST_RUNNER_TIMEOUT
             value: $MAX_TEST_RUNNER_TIMEOUT
+          - name: SLACK_CHANNEL_ID
+            value: $SLACK_CHANNEL_ID
 
           - name: GITHUB_OAUTH_TOKEN
             value: $GITHUB_OAUTH_TOKEN

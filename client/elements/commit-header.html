@@ -9,8 +9,11 @@
 -->
 <link rel="import" href="../components/polymer/polymer.html">
 <link rel="import" href="../components/more-filters/more-filters.html">
+<link rel="import" href="../components/core-icons/core-icons.html">
+<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../components/core-ajax/core-ajax.html">
 
-<polymer-element name="commit-header" attributes="commit" noscript>
+<polymer-element name="commit-header" attributes="commit">
   <template>
     <style>
       a {
@@ -24,6 +27,11 @@
         vertical-align: middle;
         width: 28px;
       }
+
+      paper-icon-button {
+        color: white;
+        vertical-align: middle;
+      }
     </style>
 
     <span class="user">
@@ -36,5 +44,17 @@
     @<a href="https://github.com/{{commit.user}}/{{commit.repo}}/commit/{{commit.sha}}" class="sha">
       {{commit.sha | substr(0,6)}}
     </a>
+
+    <paper-icon-button icon="refresh" on-tap="{{retry}}"></paper-icon-button>
+    <core-ajax
+      id="retryRequest"
+      url="http://107.178.209.7/test?{{commit.user}}/{{commit.repo}}@{{commit.sha}}"></core-ajax>
   </template>
+  <script>
+    Polymer('commit-header', {
+      retry: function(e) {
+        this.$.retryRequest.go();
+      }
+    });
+  </script>
 </polymer-element>

@@ -10,14 +10,17 @@
 // jshint node: true
 'use strict';
 
+var fs           = require('fs');
 var async        = require('async');
 var chalk        = require('chalk');
 var Firebase     = require('firebase');
 var GitHub       = require('github');
 var htmlToText   = require('nodemailer-html-to-text').htmlToText;
 var http         = require('http');
+var mkdirp       = require('mkdirp');
 var nodemailer   = require('nodemailer');
 var path         = require('path');
+var userid       = require('userid');
 
 var Config       = require('./lib/config');
 var Log          = require('./lib/log');
@@ -26,7 +29,6 @@ var Queue        = require('./lib/queue');
 var RepoRegistry = require('./lib/reporegistry');
 var serverSteps  = require('./lib/serversteps');
 var TestRunner   = require('./lib/testrunner');
-
 // Setup & Global State
 
 // We may not be in a real TTY, but we _really_ like colors.
@@ -55,7 +57,19 @@ mailer.use('compile', function(mail, done) {
   done();
 });
 
+var cacheDir;
+
 // Workflow Segments
+
+function setupCICache(done) {
+  workerLog.group('Setting up CI cache');
+  cacheDir = path.join(__dirname, 'ci_cache');
+  workerLog.info('creating cache:', cacheDir);
+  mkdirp(cacheDir, function(error) {
+    workerLog.groupEnd();
+    done(error);
+  });
+}
 
 function connectToServices(done) {
   workerLog.group('Connecting to services');
@@ -105,11 +119,48 @@ QueueProcessor.prototype.cancel = function cancel(commit) {
   }
 };
 
+function dropRoot(done) {
+  if (process.getuid() === 0) {
+    workerLog.group('Dropping from root');
+    try {
+      var nobodyUid = userid.uid('nobody');
+      var nobodyGid = (function(groups) {
+        var gid = -1;
+        for (var i = 0; i < groups.length; i++) {
+          try {
+            gid = userid.gid(groups[i]);
+            break;
+          } catch(_) {
+          }
+        }
+        return gid;
+      })(['nobody', 'nogroup']);
+      if (nobodyGid === -1) {
+        return done('Could not get nobody credentials');
+      }
+      workerLog.info('resetting cache folder credntials to nobody');
+      fs.chownSync(cacheDir, nobodyUid, nobodyGid);
+      workerLog.info('setting bower cache locations');
+      process.env.XDG_CACHE_HOME = path.join(cacheDir, 'cache');
+      process.env.XDG_CONFIG_HOME = path.join(cacheDir, 'config');
+      process.env.XDG_DATA_HOME = path.join(cacheDir, 'data');
+      workerLog.info('UID root -> nobody');
+      process.setuid(nobodyUid);
+      workerLog.groupEnd();
+      done();
+    } catch(_) {
+      done('Could not drop from root!');
+    }
+  } else {
+    done();
+  }
+}
+
 // TODO(nevir): This could use some cleanup.
 function startQueue(done) {
   workerLog.info('Starting Queue');
 
-  var repos = new RepoRegistry(path.join(__dirname, 'commits'));
+  var repos = new RepoRegistry(path.join(cacheDir, 'commits'));
 
   queue = new Queue(new QueueProcessor(repos), fbRoot.child('queue'), github, config);
   queue.start();
@@ -117,22 +168,12 @@ function startQueue(done) {
   done();
 }
 
-function updateRunnersAfterInterval() {
-  setTimeout(function() {
-    queue.pause(function() {
-      TestRunner.update(config, workerLog, mailer, function() {
-        queue.resume();
-        updateRunnersAfterInterval();
-      });
-    });
-  }, config.worker.runnerRefreshInterval);
-}
-
 // Boot
-
 async.series([
+  setupCICache,
   connectToServices,
   TestRunner.update.bind(TestRunner, config, workerLog, mailer),
+  dropRoot,
   startQueue,
   function(done) {
     serverSteps.startServer(config, workerLog, queue, fbRoot, github, done);
@@ -143,6 +184,5 @@ async.series([
     throw error;
   }
   workerLog.info('CI Runner active.');
-  updateRunnersAfterInterval();
 });
 

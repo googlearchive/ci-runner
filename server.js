@@ -171,9 +171,9 @@ function startQueue(done) {
 // Boot
 async.series([
   setupCICache,
-  connectToServices,
   TestRunner.update.bind(TestRunner, config, workerLog, mailer),
   dropRoot,
+  connectToServices,
   startQueue,
   function(done) {
     serverSteps.startServer(config, workerLog, queue, fbRoot, github, done);

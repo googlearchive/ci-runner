@@ -2,8 +2,8 @@ FROM google/nodejs
 
 WORKDIR /app
 ADD package.json /app/
-RUN npm install -g grunt-cli bower
-RUN npm install
+RUN npm install -g bower
+RUN npm install --production
 ADD . /app
 
 CMD []

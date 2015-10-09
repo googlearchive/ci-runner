@@ -20,7 +20,7 @@ var http         = require('http');
 var mkdirp       = require('mkdirp');
 var nodemailer   = require('nodemailer');
 var path         = require('path');
-var userid       = require('userid');
+var shelljs      = require('shelljs');
 
 var Config       = require('./lib/config');
 var Log          = require('./lib/log');
@@ -122,19 +122,23 @@ QueueProcessor.prototype.cancel = function cancel(commit) {
 function dropRoot(done) {
   if (process.getuid() === 0) {
     workerLog.group('Dropping from root');
+    var shellOptions = {silent: true};
+    var groups = ['nobody', 'nogroup'];
     try {
-      var nobodyUid = userid.uid('nobody');
-      var nobodyGid = (function(groups) {
-        var gid = -1;
-        for (var i = 0; i < groups.length; i++) {
-          try {
-            gid = userid.gid(groups[i]);
-            break;
-          } catch(_) {
-          }
+      var nobodyUid = -1, nobodyGid = -1;
+      var results = shelljs.exec('id -u nobody', shellOptions);
+      if (results.code === 0) {
+        nobodyUid = Number(results.output.trim());
+      } else {
+        return done('No userid found for nobody');
+      }
+      for (var i = 0; i < groups.length; i++) {
+        results = shelljs.exec('id -g ' + groups[i], shellOptions);
+        if (results.code === 0) {
+          nobodyGid = Number(results.output.trim());
+          break;
         }
-        return gid;
-      })(['nobody', 'nogroup']);
+      }
       if (nobodyGid === -1) {
         return done('Could not get nobody credentials');
       }

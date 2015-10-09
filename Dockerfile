@@ -1,10 +1,10 @@
-FROM google/nodejs
+FROM node:slim
 
 WORKDIR /app
-ADD package.json /app/
+COPY package.json /app
 RUN npm install -g bower
 RUN npm install --production
-ADD . /app
+COPY . /app
 
 CMD []
-ENTRYPOINT ["/nodejs/bin/node", "server"]
+ENTRYPOINT ["node", "server"]

@@ -175,7 +175,6 @@ function startQueue(done) {
 // Boot
 async.series([
   setupCICache,
-  TestRunner.update.bind(TestRunner, config, workerLog, mailer),
   dropRoot,
   connectToServices,
   startQueue,

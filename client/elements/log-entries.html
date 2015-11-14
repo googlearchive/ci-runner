@@ -95,27 +95,27 @@
         this._insertAfterEntry(entryNode, prevEntryId);
 
         if (snapshot.val().children) {
-          this._insertAfterEntry(this._stampGroup(snapshot), snapshot.name());
+          this._insertAfterEntry(this._stampGroup(snapshot), snapshot.key());
         }
 
         this.fire('entry-added', entryNode);
       },
 
       _onChildChanged: function(snapshot) {
-        var group = this._groupForId(snapshot.name());
+        var group = this._groupForId(snapshot.key());
         if (!snapshot.val().children || group) return;
-        this._insertAfterEntry(this._stampGroup(snapshot), snapshot.name());
+        this._insertAfterEntry(this._stampGroup(snapshot), snapshot.key());
       },
 
       _onChildRemoved: function(snapshot) {
-        this._content.querySelector('#' + snapshot.name()).remove();
-        var group = this._groupForId(snapshot.name());
+        this._content.querySelector('#' + snapshot.key()).remove();
+        var group = this._groupForId(snapshot.key());
         if (group) group.remove();
       },
 
       _stampEntryNode: function(snapshot) {
         var model = {
-          id:    snapshot.name(),
+          id:    snapshot.key(),
           entry: snapshot.val(),
         };
         var fragment = this.$.entryTemplate.createInstance(model, this.bindingDelegate);
@@ -128,8 +128,8 @@
 
       _stampGroup: function(snapshot) {
         var model = {
-          entryId:      snapshot.name(),
-          firebaseRoot: this.firebaseRoot + '/' + snapshot.name() + '/children',
+          entryId:      snapshot.key(),
+          firebaseRoot: this.firebaseRoot + '/' + snapshot.key() + '/children',
         };
         var fragment = this.$.groupTemplate.createInstance(model, this.bindingDelegate);
         return fragment.children[0];
